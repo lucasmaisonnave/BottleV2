@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2020-05-25T21:27:04.022Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36" etag="oRbx7SwHWpWXnZY84xpx" version="13.1.3" type="github" pages="6">
+<mxfile host="app.diagrams.net" modified="2020-05-25T21:58:39.521Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36" etag="FN2s-x1GMIu5ueyEHxUy" version="13.1.3" type="github" pages="6">
   <diagram id="C5RBs43oDa-KdzZeNtuy" name="Main Thread">
     <mxGraphModel dx="1038" dy="548" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -284,7 +284,7 @@
         <mxCell id="DLfBeb-snqFi9MLf9C4Z-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="mYMzYYPP3-yORAxUGA6w-1" source="lALPWYPhE3fPlMj3Ps1b-0" target="DLfBeb-snqFi9MLf9C4Z-0">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="lALPWYPhE3fPlMj3Ps1b-0" value="&lt;font color=&quot;#000000&quot;&gt;Créer Compte&lt;br&gt;Connection&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#10739e;fillColor=#b1ddf0;fontStyle=1" parent="mYMzYYPP3-yORAxUGA6w-1" vertex="1">
+        <mxCell id="lALPWYPhE3fPlMj3Ps1b-0" value="&lt;font color=&quot;#000000&quot;&gt;Créer Compte/&lt;br&gt;Connection&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#10739e;fillColor=#b1ddf0;fontStyle=1" parent="mYMzYYPP3-yORAxUGA6w-1" vertex="1">
           <mxGeometry x="335" y="-30" width="110" height="40" as="geometry" />
         </mxCell>
         <mxCell id="9mNAoDdw1-pX__U5zwQ0-13" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontColor=#000000;" parent="mYMzYYPP3-yORAxUGA6w-1" source="rjOmy4k-91mObsRukWhH-0" target="9mNAoDdw1-pX__U5zwQ0-9" edge="1">
