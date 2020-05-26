@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "sdl.h"
+#include "blockchain.h"
 #include <SDL2/SDL_ttf.h>   //apt-get install libsdl2-ttf-dev
 #include <SDL2/SDL_image.h> //apt-get install libsdl2-image-dev
 
@@ -42,227 +43,6 @@ SDL_Texture* init_texture(Data* Bottle, SDL_Texture* texture)
     SDL_QueryTexture(texture, NULL, NULL, &textureW,&textureH);
     SDL_FreeSurface(Bottle->Loading_Surf); /* we got the texture now -> free surface */
     return texture;
-}
-
-
-int Connecter(Data* Bottle, TABID *TabID, int *connect, char* username, int creercompte)
-{
-    
-    int m = 1;
-    int x = 0; //Position de la souris
-    int y = 0;
-    int r = 1;  //Quitter
-    int ID = 0;
-    int MDP = 0;
-    Message *mes = (Message*)malloc(sizeof(Message));
-    mes->textRect.x = 760;     //La position du message
-    mes->textRect.y = 315;
-    mes->textRect.h = 30;    //Choisir la longeur du message
-    mes->textRect.w = 25;   //Choisir la largeur du message
-    mes->tailleP = 40;
-    mes->couleur.b = 0;
-    mes->couleur.a = 0;
-    mes->couleur.r = 0;
-    mes->couleur.g = 0;
-    struct Identifiant* Element = (struct Identifiant*)malloc(sizeof(struct Identifiant));
-    strcpy(Element->password, "");
-    strcpy(Element->username, "");
-
-    while(m != 0)
-    {
-        SDL_Event event;
-        
-        while(SDL_PollEvent(&event) && !ID && !MDP)
-        {
-            switch (event.type)
-            {
-                case SDL_QUIT:
-                    m = 0;
-                    r = 0;
-                    break;
-                case SDL_MOUSEBUTTONDOWN:
-                    x = event.button.x;
-                    y = event.button.y;
-                    if(y > 305 && y<355 && x > 765 && x < 1300)     //Identifiant
-                    {
-                        ID = 1;   
-                        mes->textRect.x = 760;     //La position du message
-                        mes->textRect.y = 315;                     
-                    }
-                    else if(x > 765 && x < 1300 && y>425 && y<462)       //Mot de passe
-                    {
-                        MDP = 1;
-                        mes->textRect.x = 760;     //La position du message
-                        mes->textRect.y = 425;
-                    }
-                    else if(y > 523 && y < 555 && x > 1200 && x < 1300) //Retour
-                    {
-                        m = 0;
-                        SDL_RenderCopy(Bottle->Main_Renderer, Bottle->menu_Texture, NULL, NULL);
-                        SDL_RenderPresent(Bottle->Main_Renderer);
-                    }
-                    continue;
-
-                case SDL_KEYDOWN: //On test si les ids sont correct
-                    if(event.key.keysym.sym == SDLK_RETURN && checkExistenceElementInTabID(TabID, Element)&& !creercompte)  //Se connecter
-                    {
-                        m = 0;
-                        *connect = 1;                                
-                    }
-                    else if(event.key.keysym.sym == SDLK_RETURN && !checkExistenceElementInTabID(TabID, Element)&& creercompte) //Création de compte
-                    {
-                        SignUp(TabID, Element);
-                        
-                        m=0;
-                        SDL_RenderCopy(Bottle->Main_Renderer, Bottle->menu_Texture, NULL, NULL);
-                        SDL_RenderPresent(Bottle->Main_Renderer);
-                    }
-                    break;
-                    
-
-                    
-            }
-        }
-
-        while(ID && !MDP)   //On a appuyer sur la case Identifiant
-        {
-            //BarreSaisie(texteID, m,r,ID,MDP,Bottle,mes);     
-            while(SDL_PollEvent(&event))
-            {                
-                switch (event.type)
-                {
-                    case SDL_KEYDOWN:                        
-                        if(event.key.keysym.sym != SDLK_SPACE && event.key.keysym.sym != SDLK_CAPSLOCK && strlen(Element->username) < MAX_WORD_LENGHT && strlen(SDL_GetKeyName(event.key.keysym.sym)) <= 1)
-                        {   
-                            strcat(Element->username,SDL_GetKeyName(event.key.keysym.sym));
-                            strcpy(mes->texte, SDL_GetKeyName(event.key.keysym.sym));
-                            mes->textRect.x += 25;
-                            Write(Bottle, mes);
-                        }
-                        
-                        else if(event.key.keysym.sym == SDLK_RETURN && checkExistenceElementInTabID(TabID, Element) && !creercompte)
-                        {
-                            m = 0;
-                            ID = 0;
-                            *connect = 1;                                
-                        }
-                        else if(event.key.keysym.sym == SDLK_RETURN && !checkExistenceElementInTabID(TabID, Element)&& creercompte) //Création de compte
-                        {
-                            SignUp(TabID, Element);
-                            m=0;
-                            ID=0;
-                            SDL_RenderCopy(Bottle->Main_Renderer, Bottle->menu_Texture, NULL, NULL);
-                            SDL_RenderPresent(Bottle->Main_Renderer);
-                        }    
-                        break;
-                    case SDL_QUIT:
-                        m = 0;
-                        r = 0;
-                        ID = 0;
-                        break;
-                    case SDL_MOUSEBUTTONDOWN:
-                        x = event.button.x;
-                        y = event.button.y;
-                        if(x > 600 && x < 1290 && y>425 && y<462)       //Mot de passe
-                        {
-                            ID = 0;
-                            MDP = 1;
-                            mes->textRect.x = 760;     //La position du message
-                            mes->textRect.y = 425;
-                        }
-                        else if(y > 523 && y < 555 && x > 1200 && x < 1300) //Retour
-                        {
-                            m = 0;
-                            ID = 0;
-                            SDL_RenderCopy(Bottle->Main_Renderer, Bottle->menu_Texture, NULL, NULL);
-                            SDL_RenderPresent(Bottle->Main_Renderer);
-                        }
-
-                        else
-                        {
-                            ID=0;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }       
-        }
-
-        while (MDP && !ID)
-        {
-            while(SDL_PollEvent(&event))
-            {                
-                switch (event.type)
-                {
-                    case SDL_KEYDOWN:
-                        
-                        if(event.key.keysym.sym != SDLK_SPACE && event.key.keysym.sym != SDLK_CAPSLOCK && strlen(Element->password) < MAX_WORD_LENGHT && strlen(SDL_GetKeyName(event.key.keysym.sym)) <= 1)
-                        {   
-                            strcat(Element->password,SDL_GetKeyName(event.key.keysym.sym));
-                            strcpy(mes->texte, SDL_GetKeyName(event.key.keysym.sym));
-                            mes->textRect.x += 25;
-                            Write(Bottle, mes);
-                        }
-                        if(event.key.keysym.sym == SDLK_RETURN && checkExistenceElementInTabID(TabID, Element) && !creercompte)
-                        {
-                            m = 0;
-                            MDP = 0;
-                            *connect = 1;
-                        }
-                        else if(event.key.keysym.sym == SDLK_RETURN && !checkExistenceElementInTabID(TabID, Element)&& creercompte) //Création de compte
-                        {
-                            SignUp(TabID, Element);
-                            m=0;
-                            MDP=0;
-                            SDL_RenderCopy(Bottle->Main_Renderer, Bottle->menu_Texture, NULL, NULL);
-                            SDL_RenderPresent(Bottle->Main_Renderer);
-                        }                  
-                        break;
-                    case SDL_QUIT:
-                        m = 0;
-                        r = 0;
-                        MDP = 0;
-                        break;
-                    case SDL_MOUSEBUTTONDOWN:
-                        x = event.button.x;
-                        y = event.button.y;
-                        if(y > 305 && y<355 && x > 765 && x < 1300)       //Identifiant
-                        {
-                            ID = 1;
-                            MDP = 0;
-                            mes->textRect.x = 760;     //La position du message
-                            mes->textRect.y = 315;
-                        }
-                        else if(y > 523 && y < 555 && x > 1200 && x < 1300) //Retour
-                        {
-                            m = 0;
-                            MDP = 0;
-                            SDL_RenderCopy(Bottle->Main_Renderer, Bottle->menu_Texture, NULL, NULL);
-                            SDL_RenderPresent(Bottle->Main_Renderer);
-                        }
-                        else
-                        {
-                            MDP=0;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }       
-    }
-    strcpy(username, Element->username);
-    free(mes);
-    free(Element);
-    return r;
-}
-
-int CreerCompte(Data* Bottle, TABID *TabID)
-{
-    int connect = 0;
-    char username[MAX_WORD_LENGHT];
-    return Connecter(Bottle, TabID,&connect, username, 1);
 }
 
 
@@ -328,45 +108,6 @@ void DisplayUsers(TABID* TabID, Data* Bottle)  //Retourne le choix
     free(mes);
 }
 
-int BarreSaisie(char* texte, Message* mes, Data* Bottle)
-{
-    SDL_Event event;
-    int start = 1;
-    int quit = 0;   //Si on  appui sur la croix
-    strcpy(texte, "");
-    while(start)
-    {
-        while(SDL_PollEvent(&event))
-        {                
-            switch (event.type)
-            {
-                case SDL_KEYDOWN:
-                                    
-                    if(event.key.keysym.sym != SDLK_SPACE && event.key.keysym.sym != SDLK_CAPSLOCK && strlen(texte)<=MAX_WORD_LENGHT && strlen(SDL_GetKeyName(event.key.keysym.sym)) <= 1)
-                    {   
-                        strcat(texte,SDL_GetKeyName(event.key.keysym.sym));
-                        strcpy(mes->texte, SDL_GetKeyName(event.key.keysym.sym));
-                        mes->textRect.x += 25;
-                        Write(Bottle, mes);
-                    }
-                    if(event.key.keysym.sym == SDLK_RETURN)
-                    {
-                        start = 0;
-                    }
-                    break;
-                case SDL_QUIT:
-                    quit = 1;
-                    start = 0;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-    return quit;
-}
-
-
 void DisplayMessagerie(char* exp, char* dest, Data* Bottle)
 {
     Message* mes = (Message*)malloc(sizeof(Message));
@@ -421,58 +162,6 @@ void DisplayMessagerie(char* exp, char* dest, Data* Bottle)
     
 }
 
-int BarreSaisieMessagerie(char* texte, Message* mes, Data* Bottle)
-{
-    SDL_Event event;
-    int start = 1;
-    int quit = 0;   //1 Si on  appui sur la croix et 2 si on appuie sur retour
-    int x,y;        //Position de la souris
-    while(start)
-    {
-        while(SDL_PollEvent(&event))
-        {                
-            switch (event.type)
-            {
-                case SDL_KEYDOWN:
-                                    
-                    if(event.key.keysym.sym != SDLK_CAPSLOCK && strlen(texte)<=14 && strlen(SDL_GetKeyName(event.key.keysym.sym)) <= 1)
-                    {   
-                        strcat(texte,SDL_GetKeyName(event.key.keysym.sym));
-                        strcpy(mes->texte, SDL_GetKeyName(event.key.keysym.sym));
-                        mes->textRect.x += 25;
-                        Write(Bottle, mes);
-                    }
-                    if(event.key.keysym.sym == SDLK_SPACE)
-                    {
-                        strcat(texte,"_");
-                        mes->textRect.x += 25;
-                    }
-                    if(event.key.keysym.sym == SDLK_RETURN)
-                    {
-                        start = 0;
-                    }
-                    break;
-                case SDL_MOUSEBUTTONDOWN:
-                    x = event.button.x;
-                    y = event.button.y;
-                    if(x > 1240 && x < 1340 && y > 730 && y < 760)  //Bouton retour
-                    {
-                        quit = 2;
-                        start = 0;
-                    }
-                    break;
-                case SDL_QUIT:
-                    quit = 1;
-                    start = 0;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-    return quit;
-}
-
 bool IsValidUsername(char* username, TABID* TabID)
 {
     int taille = TabID->taille;
@@ -485,4 +174,48 @@ bool IsValidUsername(char* username, TABID* TabID)
         }
     }
     return false;
+}
+
+void* MenuThread(void* arg)
+{
+    while(1)
+    {
+        while(Etat == ETAT_MENU)
+        {
+            SDL_RenderCopy(Bottle.Main_Renderer, Bottle.menu_Texture, NULL, NULL);
+            SDL_RenderPresent(Bottle.Main_Renderer);
+            if(Input.pressedX > 600 && Input.pressedX < 960 && Input.pressedY > 285 && Input.pressedY <335) //Se connecter
+            {
+                Input.pressedX = 0;
+                Input.pressedY = 0;
+                Etat == ETAT_CONNECTION;
+            }
+            if(Input.pressedX > 600 && Input.pressedX < 1290 && Input.pressedY > 425 && Input.pressedY < 462)   //Créer Compte
+            {
+                Input.pressedX = 0;
+                Input.pressedY = 0;
+                Etat == ETAT_COMPTE;
+            }
+        }
+    }
+}
+
+void* CompteConnecterThread(void* arg)
+{
+
+}
+
+void* DestinataireThread(void* arg)
+{
+
+}
+
+void* MessagerieThread(void* arg)
+{
+
+}
+
+void BarreSaisie()
+{
+
 }
