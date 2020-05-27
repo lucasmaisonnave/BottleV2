@@ -180,10 +180,11 @@ void* MenuThread(void* arg)
 {
     while(1)
     {
+        while(Etat != ETAT_MENU);
+        SDL_RenderCopy(Bottle.Main_Renderer, Bottle.menu_Texture, NULL, NULL);
+        SDL_RenderPresent(Bottle.Main_Renderer);        
         while(Etat == ETAT_MENU)
         {
-            SDL_RenderCopy(Bottle.Main_Renderer, Bottle.menu_Texture, NULL, NULL);
-            SDL_RenderPresent(Bottle.Main_Renderer);
             if(Input.pressedX > 600 && Input.pressedX < 960 && Input.pressedY > 285 && Input.pressedY <335) //Se connecter
             {
                 Input.pressedX = 0;
