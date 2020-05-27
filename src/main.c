@@ -23,8 +23,6 @@ int main(void)
     mes->couleur.a = 0;
     mes->couleur.r = 0;
     mes->couleur.g = 0;
-    char exp[MAX_WORD_LENGHT];
-    char dest[MAX_WORD_LENGHT] = "";
     char texte[MaxMessage]; //Message à ajouter dans la blockchain
     char Time[30];
     
@@ -43,8 +41,8 @@ int main(void)
                     Etat = ETAT_QUIT;
                     break;
                 case SDL_MOUSEBUTTONDOWN:
-                    Input.pressedX = event.button.x;
-                    Input.pressedY = event.button.y;
+                    Input.PointPressed.x = event.button.x;
+                    Input.PointPressed.y = event.button.y;
                     break;
                 case SDL_KEYDOWN:
                     Input.BouttonClavier = event.key.keysym.sym;

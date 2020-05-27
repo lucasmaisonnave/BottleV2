@@ -125,13 +125,10 @@ void DisplayMessagerie(char* exp, char* dest, Data* Bottle)
     strcpy(mes->texte, exp);
 
     Write(Bottle, mes);
-
-
     mes->textRect.w = 25*strlen(dest);
     mes->textRect.x = 820;
     strcpy(mes->texte, dest);
     Write(Bottle, mes);
-
 
     mes->textRect.x = 60;
     struct bloc *currentbloc = Genesis->premier;
@@ -178,24 +175,25 @@ bool IsValidUsername(char* username, TABID* TabID)
 
 void* MenuThread(void* arg)
 {
+    SDL_Rect Connect;
+    SDL_Rect Compte;
+    Connect.x = 600; Connect.y = 285; Connect.h = 50; Connect.w = 360;
+    Compte.x = 600; Connect.y = 425; Connect.h = 37; Connect.w = 690;    
     while(1)
     {
         while(Etat != ETAT_MENU);
-        SDL_RenderCopy(Bottle.Main_Renderer, Bottle.menu_Texture, NULL, NULL);
-        SDL_RenderPresent(Bottle.Main_Renderer);        
+        DisplayBackground(Bottle.menu_Texture);
         while(Etat == ETAT_MENU)
         {
-            if(Input.pressedX > 600 && Input.pressedX < 960 && Input.pressedY > 285 && Input.pressedY <335) //Se connecter
+            if(SDL_PointInRect(&Input.PointPressed, &Connect)) //Se connecter
             {
-                Input.pressedX = 0;
-                Input.pressedY = 0;
-                Etat = ETAT_CONNECTION;
+                ResetInput();
+                Etat == ETAT_CONNECTION;
             }
-            if(Input.pressedX > 600 && Input.pressedX < 1290 && Input.pressedY > 425 && Input.pressedY < 462)   //Créer Compte
+            if(SDL_PointInRect(&Input.PointPressed, &Compte))   //Créer Compte
             {
-                Input.pressedX = 0;
-                Input.pressedY = 0;
-                Etat = ETAT_COMPTE;
+                ResetInput();
+                Etat == ETAT_COMPTE;
             }
         }
     }
@@ -208,15 +206,108 @@ void* CompteConnecterThread(void* arg)
 
 void* DestinataireThread(void* arg)
 {
-
+    char User[MAX_WORD_LENGHT];
+    Message mes;                //Message à afficher mais on le fait lettre par lettre donc != Texte
+    mes.textRect.x = 30;        //Position de la barre de saisie
+    mes.textRect.y = 670;
+    mes.textRect.h = 35;        //Choisir la longeur du message (Une lettre)
+    mes.textRect.w = 25;        //Choisir la largeur du message
+    mes.tailleP = 30;
+    mes.couleur.b = 0; mes.couleur.a = 0; mes.couleur.r = 0; mes.couleur.g = 0;
+    SDL_Rect Barre;
+    Barre.x = 83; Barre.y = 220; Barre.h = 60; Barre.w = 1310;  //Ce ne sont pas les bonnes valeurs il faut les changer
+    while(1)
+    {
+        while(Etat == ETAT_DESTINATAIRE)
+        {
+            DisplayBackground(Bottle.destinataire_Texture);
+            DisplayUsers(&TabID, &Bottle);
+            strcpy(User, "");
+            while(Input.BouttonClavier != SDLK_RETURN && SDL_PointInRect(&Input.PointPressed, &Barre))  //On appuie sur la barre de texte
+            {
+                BarreSaisie(&mes, User, &Barre);
+            }
+            if(Input.BouttonClavier == SDLK_RETURN && IsValidUsername(User, &TabID))
+            {
+                ResetInput();
+                strcpy(destinataire, User);
+                Etat = ETAT_MESSAGERIE;
+            }
+        }
+    }
 }
 
 void* MessagerieThread(void* arg)
 {
-
+    Message mes;                //Message à afficher mais on le fait lettre par lettre donc != Texte
+    mes.textRect.x = 30;        //Position de la barre de saisie
+    mes.textRect.y = 670;
+    mes.textRect.h = 35;        //Choisir la longeur du message (Une lettre)
+    mes.textRect.w = 25;        //Choisir la largeur du message
+    mes.tailleP = 30;
+    mes.couleur.b = 0; mes.couleur.a = 0; mes.couleur.r = 0; mes.couleur.g = 0;
+    SDL_Rect Barre;
+    Barre.x = 30; Barre.y = 670; Barre.h = 60; Barre.w = 1310;
+    SDL_Rect Retour;
+    Retour.x = 1240; Retour.y = 730; Retour.h = 30; Retour.w = 100;
+    donnee DataBloc;            //Donnée du bloc à ajouter
+    strcpy(DataBloc.exp, expediteur);
+    strcpy(DataBloc.dest, destinataire);
+    while(1)
+    {
+        while(Etat == ETAT_MESSAGERIE)
+        {   
+            DisplayBackground(Bottle.messagerie_Texture);
+            DisplayMessagerie(DataBloc.exp, DataBloc.dest, &Bottle);
+            strcpy(DataBloc.message, "");
+            while(Input.BouttonClavier != SDLK_RETURN && SDL_PointInRect(&Input.PointPressed, &Barre))  //On appuie sur la barre de texte
+            {
+                BarreSaisie(&mes, DataBloc.message, &Barre);
+            }
+            if(SDL_PointInRect(&Input.PointPressed, &Retour))   //On appuie sur Retour
+            {
+                ResetInput();
+                Etat = ETAT_CONNECTION;
+            }
+            if(Input.BouttonClavier == SDLK_RETURN) //Envoie du message
+            {
+                ResetInput();
+                getTime(DataBloc.date);
+                ajout_block(&DataBloc);
+                /*On save et Load 2 fois car la blockchain a été codé comme une pile et donc save inverse le sens de la pile*/
+                SaveBlockChain(FileNameBC);
+                initGenesis();
+                LoadBlockChainFromFile2(FileNameBC);
+                SaveBlockChain(FileNameBC);
+                initGenesis();
+                LoadBlockChainFromFile2(FileNameBC);
+            }
+        }
+    }
 }
 
-void BarreSaisie()
+void BarreSaisie(Message* mes, char texte[MAX_WORD_LENGHT], SDL_Rect* Barre)
 {
+    if(SDL_PointInRect(&Input.PointPressed, Barre) && Input.BouttonClavier != SDLK_UNKNOWN && strlen(texte) < MAX_WORD_LENGHT && strlen(SDL_GetKeyName(Input.BouttonClavier)) <= 1)
+    {
+        strcat(texte,SDL_GetKeyName(Input.BouttonClavier));
+        strcpy(mes->texte, SDL_GetKeyName(Input.BouttonClavier));
+        mes->textRect.x += 25;
+        Write(&Bottle, mes);
+        Input.BouttonClavier = SDLK_UNKNOWN;
+    }
+    //Faire le cas où on appui sur espace
+}
 
+void DisplayBackground(SDL_Texture* Texture)    //Affiche Texture en fond
+{
+    SDL_RenderCopy(Bottle.Main_Renderer, Texture, NULL, NULL);
+    SDL_RenderPresent(Bottle.Main_Renderer);
+}
+
+void ResetInput()   //Reset Input à 0
+{
+    Input.PointPressed.x = 0;
+    Input.PointPressed.y = 0;
+    Input.BouttonClavier = SDLK_UNKNOWN;
 }

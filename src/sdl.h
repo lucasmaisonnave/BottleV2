@@ -2,6 +2,7 @@
 #define SDL_H
     #include <SDL2/SDL.h>
     #include "blockchain.h"
+    #include "compte.h"
     #include <SDL2/SDL_ttf.h> 
     #include <SDL2/SDL_image.h> 
     
@@ -41,8 +42,7 @@
 
     typedef struct
     {
-        int pressedX;
-        int pressedY;
+        SDL_Point PointPressed;
         SDL_Keycode BouttonClavier;
     }INPUT;
 
@@ -51,7 +51,7 @@
     INPUT Input;
 
     Data Bottle;
-    TABID TabID;
+    
 
     void init_global(Data* Bottle);
     SDL_Texture* init_texture(Data* Bottle, SDL_Texture* texture);
@@ -64,7 +64,9 @@
     void* CompteConnecterThread(void* arg);
     void* DestinataireThread(void* arg);
     void* MessagerieThread(void* arg);
-    void BarreSaisie();
+    void BarreSaisie(Message* mes, char texte[MAX_WORD_LENGHT], SDL_Rect* Barre);
+    void DisplayBackground(SDL_Texture* Texture);
+    void ResetInput();
 
 
 #endif

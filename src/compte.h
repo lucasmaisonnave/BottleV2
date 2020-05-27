@@ -36,7 +36,9 @@
         struct Identifiant* ID;
     }TABID;
 
-
+    char expediteur[MAX_WORD_LENGHT];
+    char destinataire[MAX_WORD_LENGHT];
+    TABID TabID;
     //void menu(HashTable *hashTab);
     void LoadTabIDFromFile(TABID* TabID, const char* TabIDFileName);
     void insertElementToTabID(TABID* TabID, struct Identifiant* Element);
