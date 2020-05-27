@@ -188,13 +188,13 @@ void* MenuThread(void* arg)
             {
                 Input.pressedX = 0;
                 Input.pressedY = 0;
-                Etat == ETAT_CONNECTION;
+                Etat = ETAT_CONNECTION;
             }
             if(Input.pressedX > 600 && Input.pressedX < 1290 && Input.pressedY > 425 && Input.pressedY < 462)   //Créer Compte
             {
                 Input.pressedX = 0;
                 Input.pressedY = 0;
-                Etat == ETAT_COMPTE;
+                Etat = ETAT_COMPTE;
             }
         }
     }
