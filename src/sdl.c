@@ -201,37 +201,62 @@ void* MenuThread(void* arg)
 
 void* CompteConnecterThread(void* arg)
 {
-
+    SDL_Rect BarreID;
+    BarreID.x = 83; BarreID.y = 220; BarreID.h = 60; BarreID.w = 1310;
+    SDL_Rect BarreMDP;
+    BarreMDP.x = 83; BarreMDP.y = 220; BarreMDP.h = 60; BarreMDP.w = 1310;
+    while(1)
+    {
+        while(Etat == ETAT_CONNECTION || Etat == ETAT_COMPTE)
+        {
+            if(Etat == ETAT_CONNECTION)
+                DisplayBackground(Bottle.connexion_Texture);
+            else
+                DisplayBackground(Bottle.compte_Texture);
+            while(Input.BouttonClavier != SDLK_RETURN && SDL_PointInRect(&Input.PointPressed, &Barre))  //On appuie sur Identifiant
+            {
+                BarreSaisie(&mes, User, &Barre);
+            }
+            
+        }
+    }
 }
 
 void* DestinataireThread(void* arg)
 {
     char User[MAX_WORD_LENGHT];
     Message mes;                //Message à afficher mais on le fait lettre par lettre donc != Texte
-    mes.textRect.x = 30;        //Position de la barre de saisie
-    mes.textRect.y = 670;
+    mes.textRect.x = 83;        //Position de la barre de saisie
+    mes.textRect.y = 220;
     mes.textRect.h = 35;        //Choisir la longeur du message (Une lettre)
     mes.textRect.w = 25;        //Choisir la largeur du message
     mes.tailleP = 30;
     mes.couleur.b = 0; mes.couleur.a = 0; mes.couleur.r = 0; mes.couleur.g = 0;
     SDL_Rect Barre;
     Barre.x = 83; Barre.y = 220; Barre.h = 60; Barre.w = 1310;  //Ce ne sont pas les bonnes valeurs il faut les changer
+    strcpy(User, "");
     while(1)
     {
         while(Etat == ETAT_DESTINATAIRE)
         {
             DisplayBackground(Bottle.destinataire_Texture);
             DisplayUsers(&TabID, &Bottle);
-            strcpy(User, "");
+            
             while(Input.BouttonClavier != SDLK_RETURN && SDL_PointInRect(&Input.PointPressed, &Barre))  //On appuie sur la barre de texte
             {
                 BarreSaisie(&mes, User, &Barre);
             }
-            if(Input.BouttonClavier == SDLK_RETURN && IsValidUsername(User, &TabID))
+            if(Input.BouttonClavier == SDLK_RETURN)
             {
-                ResetInput();
-                strcpy(destinataire, User);
-                Etat = ETAT_MESSAGERIE;
+                strcpy(User, "");
+                mes.textRect.x = 83;
+                mes.textRect.y = 220;
+                if(IsValidUsername(User, &TabID))
+                {   
+                    ResetInput();
+                    strcpy(destinataire, User);
+                    Etat = ETAT_MESSAGERIE;
+                }
             }
         }
     }
@@ -271,7 +296,10 @@ void* MessagerieThread(void* arg)
             }
             if(Input.BouttonClavier == SDLK_RETURN) //Envoie du message
             {
+                Input.BouttonClavier = SDLK_UNKNOWN;
                 ResetInput();
+                mes.textRect.x = 30;
+                mes.textRect.y = 670;
                 getTime(DataBloc.date);
                 ajout_block(&DataBloc);
                 /*On save et Load 2 fois car la blockchain a été codé comme une pile et donc save inverse le sens de la pile*/
