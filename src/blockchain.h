@@ -55,6 +55,7 @@
     void LoadBlockChainFromFile1(char* filename);
     void LoadBlockChainFromFile2(char* filename);
     void SaveBlockChain(char* filename);
+    void SaveBlockChain2(char* filename);
     void initGenesis();
     char* getTime(char* Time);
 #endif

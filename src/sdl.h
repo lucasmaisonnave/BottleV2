@@ -68,6 +68,7 @@
     void DisplayBackground(SDL_Texture* Texture);
     void ResetInput();
     void ResetId(struct Identifiant* Id);
+    void ResetMes(Message* mes, SDL_Rect* Barre);
 
 
 #endif

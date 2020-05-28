@@ -395,3 +395,13 @@ void LoadBlockChainFromFile2(char* filename)
     }
     fclose(file);
 }
+
+void SaveBlockChain2(char* filename)    /*On save et Load 2 fois car la blockchain a été codé comme une pile et donc save inverse le sens de la pile*/
+{
+    SaveBlockChain(FileNameBC);
+    initGenesis();
+    LoadBlockChainFromFile2(FileNameBC);
+    SaveBlockChain(FileNameBC);
+    initGenesis();
+    LoadBlockChainFromFile2(FileNameBC);
+}

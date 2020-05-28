@@ -181,7 +181,7 @@ void* MenuThread(void* arg)
     SDL_Rect Connect;
     SDL_Rect Compte;
     Connect.x = 600; Connect.y = 300; Connect.h = 37; Connect.w = 360;
-    Compte.x = 600; Connect.y = 425; Connect.h = 37; Connect.w = 690;    
+    Compte.x = 600; Compte.y = 425; Compte.h = 37; Compte.w = 690;    
     while(1)
     {
         while(Etat != ETAT_MENU);
@@ -191,14 +191,12 @@ void* MenuThread(void* arg)
             if(SDL_PointInRect(&Input.PointPressed, &Connect)) //Se connecter
             {
                 ResetInput();
-                printf("connection\n");
-                //Etat = ETAT_CONNECTION;
+                Etat = ETAT_CONNECTION;
             }
             if(SDL_PointInRect(&Input.PointPressed, &Compte))   //Créer Compte
             {
                 ResetInput();
-                printf("compte\n");
-                //Etat = ETAT_COMPTE;
+                Etat = ETAT_COMPTE;
             }
         }
     }
@@ -209,15 +207,15 @@ void* CompteConnecterThread(void* arg)
     SDL_Rect BarreUsername;
     BarreUsername.x = 765; BarreUsername.y = 305; BarreUsername.h = 50; BarreUsername.w = 535;
     SDL_Rect BarrePassword;
-    BarrePassword.x = 765; BarrePassword.y = 425; BarrePassword.h = 50; BarrePassword.w = 535;
+    BarrePassword.x = 765; BarrePassword.y = 416; BarrePassword.h = 50; BarrePassword.w = 535;
     SDL_Rect Retour;
     Retour.x = 1200; Retour.y = 523; Retour.h = 30; Retour.w = 100;
     struct Identifiant Id;
     ResetId(&Id);
-    Message mesUsername; mesUsername.textRect.x = 770; mesUsername.textRect.y = 310; mesUsername.textRect.h = 35; mesUsername.textRect.w = 25; 
+    Message mesUsername; ResetMes(&mesUsername, &BarreUsername); mesUsername.textRect.h = 35; mesUsername.textRect.w = 25; 
     mesUsername.tailleP = 30; mesUsername.couleur.b = 0; mesUsername.couleur.a = 0; mesUsername.couleur.r = 0; mesUsername.couleur.g = 0;
-    Message mesPassword; mesUsername.textRect.x = 770; mesUsername.textRect.y = 435; mesUsername.textRect.h = 35; mesUsername.textRect.w = 25; 
-    mesUsername.tailleP = 30; mesUsername.couleur.b = 0; mesUsername.couleur.a = 0; mesUsername.couleur.r = 0; mesUsername.couleur.g = 0;
+    Message mesPassword; ResetMes(&mesPassword, &BarrePassword); mesPassword.textRect.h = 35; mesPassword.textRect.w = 25; 
+    mesPassword.tailleP = 30; mesPassword.couleur.b = 0; mesPassword.couleur.a = 0; mesPassword.couleur.r = 0; mesPassword.couleur.g = 0;
     while(1)
     {
         while(Etat == ETAT_CONNECTION || Etat == ETAT_COMPTE)
@@ -233,6 +231,9 @@ void* CompteConnecterThread(void* arg)
             if(SDL_PointInRect(&Input.PointPressed, &Retour))   //On appuie sur Retour
             {
                 ResetInput();
+                ResetMes(&mesUsername, &BarreUsername); //On reset la barre de saisie Username et Password
+                ResetMes(&mesPassword, &BarrePassword);
+                ResetId(&Id);
                 Etat = ETAT_MENU;
             }
             if(Input.BouttonClavier == SDLK_RETURN)     //On appuie sur entrée
@@ -241,17 +242,17 @@ void* CompteConnecterThread(void* arg)
                 {
                     ResetInput();
                     strcpy(expediteur, Id.username);      //On met à jour la variable expediteur
-                    Etat = ETAT_MESSAGERIE;
+                    Etat = ETAT_DESTINATAIRE;
                 }
-                else if (Etat = ETAT_COMPTE && !checkExistenceElementInTabID(&TabID, &Id))  //Cas où on est dans Créer un compte, on vérifie que les Ids rentrés n'existent pas déjà et on crée le compte et on revient au menu
+                else if (Etat == ETAT_COMPTE && !checkExistenceElementInTabID(&TabID, &Id))  //Cas où on est dans Créer un compte, on vérifie que les Ids rentrés n'existent pas déjà et on crée le compte et on revient au menu
                 {
-                    SignUp(&TabID, &Id);
+                    SignUp(&TabID, &Id);                //On ajoute le compte dans TabId et on le sauvegarde
                     SaveTabID(&TabID, FileNameID);
                     ResetInput();
                     Etat = ETAT_MENU;
                 }
-                mesUsername.textRect.x = 770; mesUsername.textRect.y = 310; //On reset la barre de saisie Username et Password
-                mesUsername.textRect.x = 770; mesUsername.textRect.y = 435;
+                ResetMes(&mesUsername, &BarreUsername); //On reset la barre de saisie Username et Password
+                ResetMes(&mesPassword, &BarrePassword);
                 ResetId(&Id);                   
             }           
         }
@@ -261,36 +262,40 @@ void* CompteConnecterThread(void* arg)
 void* DestinataireThread(void* arg)
 {
     char User[MAX_WORD_LENGHT];
+    SDL_Rect Barre;
+    Barre.x = 83; Barre.y = 220; Barre.h = 60; Barre.w = 1310;  //Ce ne sont pas les bonnes valeurs il faut les changer
     Message mes;                //Message à afficher mais on le fait lettre par lettre donc != Texte
-    mes.textRect.x = 83;        //Position de la barre de saisie
-    mes.textRect.y = 220;
+    ResetMes(&mes, &Barre);
     mes.textRect.h = 35;        //Choisir la longeur du message (Une lettre)
     mes.textRect.w = 25;        //Choisir la largeur du message
     mes.tailleP = 30;
-    mes.couleur.b = 0; mes.couleur.a = 0; mes.couleur.r = 0; mes.couleur.g = 0;
-    SDL_Rect Barre;
-    Barre.x = 83; Barre.y = 220; Barre.h = 60; Barre.w = 1310;  //Ce ne sont pas les bonnes valeurs il faut les changer
+    mes.couleur.b = 0; mes.couleur.a = 0; mes.couleur.r = 0; mes.couleur.g = 0;    
     strcpy(User, "");
     while(1)
     {
+        while(Etat != ETAT_DESTINATAIRE);   //On fait 2 boucles while pour éviter de réactualiser la page constamment dans le 2ème while
+        DisplayBackground(Bottle.destinataire_Texture); //Affichage du fond et des utlisateurs
+        DisplayUsers(&TabID, &Bottle);
         while(Etat == ETAT_DESTINATAIRE)
         {
-            DisplayBackground(Bottle.destinataire_Texture);
-            DisplayUsers(&TabID, &Bottle);
-            
-            BarreSaisie(&mes, User, &Barre);
+            BarreSaisie(&mes, User, &Barre);        //Barre de saisie message
 
-            if(Input.BouttonClavier == SDLK_RETURN)
-            {
-                if(IsValidUsername(User, &TabID))
-                {   
-                    ResetInput();
-                    strcpy(destinataire, User);
-                    Etat = ETAT_MESSAGERIE;
+            if(Input.BouttonClavier == SDLK_RETURN) //On appuie sur entrée on test si l'utilisateur écris est valide et on passe à la messagerie et on reset la page
+            {   
+                ResetInput();
+                if(IsValidUsername(User, &TabID))   //Test de validité de l'utilisateur rentré
+                {                    
+                    strcpy(destinataire, User);     //On met à jour le destinataire
+                    Etat = ETAT_MESSAGERIE;         //On passe à la messagerie
                 }
-                strcpy(User, "");
-                mes.textRect.x = 83;
-                mes.textRect.y = 220;
+                else                                //Si le nom rentré 'est pas valide un reset l'affichage
+                {
+                    DisplayBackground(Bottle.destinataire_Texture);
+                    DisplayUsers(&TabID, &Bottle);
+                }                
+                strcpy(User, "");                   //On reset les données du message
+                ResetMes(&mes, &Barre);
+                
             }
         }
     }
@@ -298,17 +303,19 @@ void* DestinataireThread(void* arg)
 
 void* MessagerieThread(void* arg)
 {
+    SDL_Rect Barre;
+    Barre.x = 30; Barre.y = 670; Barre.h = 60; Barre.w = 1310;  //Barre de Saisie
+    SDL_Rect Retour;
+    Retour.x = 1240; Retour.y = 730; Retour.h = 30; Retour.w = 100; //Bouton retour
+    SDL_Rect Refresh;
+    Refresh.x = 1240; Refresh.y = 730; Refresh.h = 30; Refresh.w = 100; //Bouton refresh
     Message mes;                //Message à afficher mais on le fait lettre par lettre donc != Texte
-    mes.textRect.x = 30;        //Position de la barre de saisie
-    mes.textRect.y = 670;
+    ResetMes(&mes, &Barre);
     mes.textRect.h = 35;        //Choisir la longeur du message (Une lettre)
     mes.textRect.w = 25;        //Choisir la largeur du message
     mes.tailleP = 30;
     mes.couleur.b = 0; mes.couleur.a = 0; mes.couleur.r = 0; mes.couleur.g = 0;
-    SDL_Rect Barre;
-    Barre.x = 30; Barre.y = 670; Barre.h = 60; Barre.w = 1310;
-    SDL_Rect Retour;
-    Retour.x = 1240; Retour.y = 730; Retour.h = 30; Retour.w = 100;
+    
     donnee DataBloc;            //Donnée du bloc à ajouter
     strcpy(DataBloc.exp, expediteur);
     strcpy(DataBloc.dest, destinataire);
@@ -318,32 +325,27 @@ void* MessagerieThread(void* arg)
         while(Etat == ETAT_MESSAGERIE)
         {   
             DisplayBackground(Bottle.messagerie_Texture);   //Affichage du fond
-            DisplayMessagerie(DataBloc.exp, DataBloc.dest, &Bottle);
+            DisplayMessagerie(DataBloc.exp, DataBloc.dest, &Bottle);    //Affichage des messages et de exp et dest
 
             BarreSaisie(&mes, DataBloc.message, &Barre);    //Barre de saisie des messages à envoyer
 
             if(SDL_PointInRect(&Input.PointPressed, &Retour))   //On appuie sur Retour
             {
-                ResetInput();
-                Etat = ETAT_CONNECTION;
+                ResetInput();                           //On reste input et message
+                ResetMes(&mes, &Barre);
+                strcpy(DataBloc.message, "");
+                Etat = ETAT_CONNECTION;                 //On passe à connection
             }
             if(Input.BouttonClavier == SDLK_RETURN) //Envoie du message
             {
-                Input.BouttonClavier = SDLK_UNKNOWN;
-                getTime(DataBloc.date);
-                ajout_block(&DataBloc);
-                /*On save et Load 2 fois car la blockchain a été codé comme une pile et donc save inverse le sens de la pile*/
-                SaveBlockChain(FileNameBC);
-                initGenesis();
-                LoadBlockChainFromFile2(FileNameBC);
-                SaveBlockChain(FileNameBC);
-                initGenesis();
-                LoadBlockChainFromFile2(FileNameBC);
-
-                strcpy(DataBloc.message, "");   //On reset les données de la barre de saisie et les inputs
+                getTime(DataBloc.date);                                     //On met à jour l'heure d'envoie du message
+                ajout_block(&DataBloc);                                     //On ajoute le message à la blockchain
+                SaveBlockChain2(FileNameBC);                                //Sauvegarde de la blockchain
+                strcpy(DataBloc.message, "");                               //On reset les données de la barre de saisie et les inputs
                 ResetInput();
-                mes.textRect.x = 30;
-                mes.textRect.y = 670;
+                ResetMes(&mes, &Barre);
+                DisplayBackground(Bottle.messagerie_Texture);               //Affichage du fond
+                DisplayMessagerie(DataBloc.exp, DataBloc.dest, &Bottle);    //Affichage des messages et de exp et dest
             }
         }
     }
@@ -382,4 +384,10 @@ void ResetId(struct Identifiant* Id)    //Reset les identifiants
 {
     strcpy(Id->username, "");
     strcpy(Id->password, "");
+}
+
+void ResetMes(Message* mes, SDL_Rect* Barre)
+{
+    mes->textRect.x = Barre->x;
+    mes->textRect.y = Barre->y + 7;
 }
