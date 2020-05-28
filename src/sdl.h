@@ -67,6 +67,7 @@
     void BarreSaisie(Message* mes, char texte[MAX_WORD_LENGHT], SDL_Rect* Barre);
     void DisplayBackground(SDL_Texture* Texture);
     void ResetInput();
+    void ResetId(struct Identifiant* Id);
 
 
 #endif

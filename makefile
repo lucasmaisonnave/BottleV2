@@ -1,7 +1,7 @@
 all: bottle
 
 bottle: blockchain.o main.o compte.o sdl.o
-	gcc -o bottle blockchain.o main.o compte.o sdl.o -lssl -lcrypto -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image
+	gcc -o bottle blockchain.o main.o compte.o sdl.o -lssl -lcrypto -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image -pthread
 
 blockchain.o: src/blockchain.c
 	gcc -o blockchain.o -c src/blockchain.c -W -Wall -std=c99 -lssl -lcrypto -lSDL2main -lSDL2

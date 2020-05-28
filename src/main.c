@@ -4,6 +4,8 @@
 #include <string.h>
 #include "compte.h"
 #include "sdl.h"
+#include <pthread.h>
+#include <errno.h>
 
 int main(void)
 {
@@ -17,17 +19,13 @@ int main(void)
     LoadTabIDFromFile(&TabID, FileNameID);
     LoadBlockChainFromFile1(FileNameBC);
 
-    Message *mes = (Message*)malloc(sizeof(Message));
-    donnee *message = (donnee*)malloc(sizeof(donnee));
-    mes->couleur.b = 0;
-    mes->couleur.a = 0;
-    mes->couleur.r = 0;
-    mes->couleur.g = 0;
-    char texte[MaxMessage]; //Message à ajouter dans la blockchain
-    char Time[30];
     
     /*-------Threads--------*/
-
+    pthread_t id[4];
+    int ret1 = pthread_create(&id[0], NULL, MenuThread, NULL);
+    int ret2 = pthread_create(&id[1], NULL, CompteConnecterThread, NULL);
+    int ret3 = pthread_create(&id[2], NULL, DestinataireThread, NULL);
+    int ret4 = pthread_create(&id[3], NULL, MessagerieThread, NULL);
     /*----------------------*/    
 
     while(Etat != ETAT_QUIT)
@@ -43,6 +41,7 @@ int main(void)
                 case SDL_MOUSEBUTTONDOWN:
                     Input.PointPressed.x = event.button.x;
                     Input.PointPressed.y = event.button.y;
+                    printf("x = %d, y = %d\n", Input.PointPressed.x,Input.PointPressed.y);
                     break;
                 case SDL_KEYDOWN:
                     Input.BouttonClavier = event.key.keysym.sym;
@@ -51,7 +50,7 @@ int main(void)
             }
         }
     }
-    
+    SDL_Dest(&Bottle);
     TTF_Quit();
     SDL_Quit();
 
