@@ -16,19 +16,19 @@ void init_global(Data* Bottle)
     Bottle->Main_Window = SDL_CreateWindow("Bottle", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1374, 775, 0);
     Bottle->Main_Renderer = SDL_CreateRenderer(Bottle->Main_Window, -1, SDL_RENDERER_ACCELERATED);
 
-    strcpy(Bottle->image,"images/menu.bmp");
+    strcpy(Bottle->image,"images/menu.jpg");
     Bottle->menu_Texture = init_texture(Bottle, Bottle->menu_Texture);
     
-    strcpy(Bottle->image,"images/compte.bmp");
+    strcpy(Bottle->image,"images/compte.jpg");
     Bottle->compte_Texture = init_texture(Bottle, Bottle->compte_Texture);
 
-    strcpy(Bottle->image,"images/connexion.bmp");
+    strcpy(Bottle->image,"images/connexion.jpg");
     Bottle->connexion_Texture = init_texture(Bottle, Bottle->connexion_Texture);
 
-    strcpy(Bottle->image,"images/messagerie.bmp");
+    strcpy(Bottle->image,"images/messagerie.jpg");
     Bottle->messagerie_Texture = init_texture(Bottle, Bottle->messagerie_Texture);
 
-    strcpy(Bottle->image,"images/destinataire.bmp");
+    strcpy(Bottle->image,"images/destinataire.jpg");
 
     Bottle->destinataire_Texture = init_texture(Bottle, Bottle->destinataire_Texture);
     
@@ -38,7 +38,7 @@ void init_global(Data* Bottle)
 SDL_Texture* init_texture(Data* Bottle, SDL_Texture* texture)
 {
     int textureW, textureH;
-    Bottle->Loading_Surf = SDL_LoadBMP(Bottle->image);
+    Bottle->Loading_Surf = IMG_Load(Bottle->image);
     texture = SDL_CreateTextureFromSurface(Bottle->Main_Renderer, Bottle->Loading_Surf);
     SDL_QueryTexture(texture, NULL, NULL, &textureW,&textureH);
     SDL_FreeSurface(Bottle->Loading_Surf); /* we got the texture now -> free surface */
@@ -193,7 +193,7 @@ void* MenuThread(void* arg)
                 ResetInput();
                 Etat = ETAT_CONNECTION;
             }
-            if(SDL_PointInRect(&Input.PointPressed, &Compte))   //Créer Compte
+            if(SDL_PointInRect(&Input.PointPressed, &Compte)) //Créer Compte
             {
                 ResetInput();
                 Etat = ETAT_COMPTE;
@@ -220,7 +220,7 @@ void* CompteConnecterThread(void* arg)
     {
         while(Etat == ETAT_CONNECTION || Etat == ETAT_COMPTE)
         {
-            if(Etat == ETAT_CONNECTION)                         //Affichage du fond
+            if(Etat == ETAT_CONNECTION)                             //Affichage du fond
                 DisplayBackground(Bottle.connexion_Texture);
             else
                 DisplayBackground(Bottle.compte_Texture);
@@ -228,7 +228,7 @@ void* CompteConnecterThread(void* arg)
             BarreSaisie(&mesUsername, Id.username, &BarreUsername); //Barre de saisi Username et Password
             BarreSaisie(&mesPassword, Id.password, &BarrePassword);
 
-            if(SDL_PointInRect(&Input.PointPressed, &Retour))   //On appuie sur Retour
+            if(SDL_PointInRect(&Input.PointPressed, &Retour)) //On appuie sur Retour
             {
                 ResetInput();
                 ResetMes(&mesUsername, &BarreUsername); //On reset la barre de saisie Username et Password
@@ -308,33 +308,40 @@ void* MessagerieThread(void* arg)
     SDL_Rect Retour;
     Retour.x = 1240; Retour.y = 730; Retour.h = 30; Retour.w = 100; //Bouton retour
     SDL_Rect Refresh;
-    Refresh.x = 1240; Refresh.y = 730; Refresh.h = 30; Refresh.w = 100; //Bouton refresh
+    Refresh.x = 40; Refresh.y = 720; Refresh.h = 40; Refresh.w = 40; //Bouton refresh
     Message mes;                //Message à afficher mais on le fait lettre par lettre donc != Texte
     ResetMes(&mes, &Barre);
     mes.textRect.h = 35;        //Choisir la longeur du message (Une lettre)
     mes.textRect.w = 25;        //Choisir la largeur du message
     mes.tailleP = 30;
-    mes.couleur.b = 0; mes.couleur.a = 0; mes.couleur.r = 0; mes.couleur.g = 0;
-    
+    mes.couleur.b = 0; mes.couleur.a = 0; mes.couleur.r = 0; mes.couleur.g = 0;    
     donnee DataBloc;            //Donnée du bloc à ajouter
-    strcpy(DataBloc.exp, expediteur);
-    strcpy(DataBloc.dest, destinataire);
     strcpy(DataBloc.message, "");
     while(1)
     {
+        while(Etat != ETAT_MESSAGERIE);
+        strcpy(DataBloc.exp, expediteur);
+        strcpy(DataBloc.dest, destinataire);
+        DisplayBackground(Bottle.messagerie_Texture);   //Affichage du fond
+        DisplayMessagerie(DataBloc.exp, DataBloc.dest, &Bottle);            //Affichage des messages et de exp et dest
         while(Etat == ETAT_MESSAGERIE)
-        {   
-            DisplayBackground(Bottle.messagerie_Texture);   //Affichage du fond
-            DisplayMessagerie(DataBloc.exp, DataBloc.dest, &Bottle);    //Affichage des messages et de exp et dest
+        {
+            BarreSaisie(&mes, DataBloc.message, &Barre);                    //Barre de saisie des messages à envoyer
 
-            BarreSaisie(&mes, DataBloc.message, &Barre);    //Barre de saisie des messages à envoyer
-
-            if(SDL_PointInRect(&Input.PointPressed, &Retour))   //On appuie sur Retour
+            if(SDL_PointInRect(&Input.PointPressed, &Retour)) //On appuie sur Retour
             {
-                ResetInput();                           //On reste input et message
+                ResetInput();                                               //On reset input et message
                 ResetMes(&mes, &Barre);
                 strcpy(DataBloc.message, "");
-                Etat = ETAT_CONNECTION;                 //On passe à connection
+                Etat = ETAT_CONNECTION;                                     //On passe à connection
+            }
+            if(SDL_PointInRect(&Input.PointPressed, &Refresh)) //On refresh la page
+            {
+                DisplayBackground(Bottle.messagerie_Texture);               //Affichage du fond
+                DisplayMessagerie(DataBloc.exp, DataBloc.dest, &Bottle);    //Affichage des messages et de exp et dest
+                ResetInput();                                               //On reste input et message
+                ResetMes(&mes, &Barre);
+                strcpy(DataBloc.message, "");
             }
             if(Input.BouttonClavier == SDLK_RETURN) //Envoie du message
             {

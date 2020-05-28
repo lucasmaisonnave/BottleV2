@@ -352,6 +352,7 @@ void LoadBlockChainFromFile1(char* filename)
         }
         else
         {
+            printf("Blockchain corrompu\n");
             fclose(file);
             file = fopen(filename, "w");    //On supprime le contenue de SaveBC
             fclose(file);
@@ -398,10 +399,10 @@ void LoadBlockChainFromFile2(char* filename)
 
 void SaveBlockChain2(char* filename)    /*On save et Load 2 fois car la blockchain a été codé comme une pile et donc save inverse le sens de la pile*/
 {
-    SaveBlockChain(FileNameBC);
+    SaveBlockChain(filename);
     initGenesis();
-    LoadBlockChainFromFile2(FileNameBC);
-    SaveBlockChain(FileNameBC);
+    LoadBlockChainFromFile2(filename);
+    SaveBlockChain(filename);
     initGenesis();
-    LoadBlockChainFromFile2(FileNameBC);
+    LoadBlockChainFromFile2(filename);
 }
