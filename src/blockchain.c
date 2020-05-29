@@ -311,6 +311,7 @@ void SaveBlockChain(char* filename)
     struct bloc* current = Genesis->premier;
     while(current != NULL)
     {
+        printBlock(current);
         fprintf(file, "%s %d %d %s %s %s %s %s\n", current->precHash,current->nonce, current->index, current->Hash, current->donnee->date, current->donnee->dest, current->donnee->exp, current->donnee->message);
         current = current->lien;
     }
@@ -336,7 +337,7 @@ void LoadBlockChainFromFile1(char* filename)
         strcat(current->donnee->date, jour);
         strcat(current->donnee->date, " ");
         strcat(current->donnee->date, mois);
-        strcat(current->donnee->date, "  ");
+        strcat(current->donnee->date, " ");
         strcat(current->donnee->date, jourM);
         strcat(current->donnee->date, " ");
         strcat(current->donnee->date, heure);
@@ -352,7 +353,7 @@ void LoadBlockChainFromFile1(char* filename)
         }
         else
         {
-            printf("Blockchain corrompu\n");
+            printBlock(current);
             fclose(file);
             file = fopen(filename, "w");    //On supprime le contenue de SaveBC
             fclose(file);
@@ -382,7 +383,7 @@ void LoadBlockChainFromFile2(char* filename)
         strcat(current->donnee->date, jour);
         strcat(current->donnee->date, " ");
         strcat(current->donnee->date, mois);
-        strcat(current->donnee->date, "  ");
+        strcat(current->donnee->date, " ");
         strcat(current->donnee->date, jourM);
         strcat(current->donnee->date, " ");
         strcat(current->donnee->date, heure);

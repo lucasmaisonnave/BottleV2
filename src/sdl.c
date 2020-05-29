@@ -238,9 +238,9 @@ void* CompteConnecterThread(void* arg)
             }
             if(Input.BouttonClavier == SDLK_RETURN)     //On appuie sur entrée
             {
+                ResetInput();
                 if(Etat == ETAT_CONNECTION && checkExistenceElementInTabID(&TabID, &Id))    //Cas où on est dans Se connecter on vérifie que les identifiants rentrés sont correct et on passe à la messagerie
                 {
-                    ResetInput();
                     strcpy(expediteur, Id.username);      //On met à jour la variable expediteur
                     Etat = ETAT_DESTINATAIRE;
                 }
@@ -248,7 +248,6 @@ void* CompteConnecterThread(void* arg)
                 {
                     SignUp(&TabID, &Id);                //On ajoute le compte dans TabId et on le sauvegarde
                     SaveTabID(&TabID, FileNameID);
-                    ResetInput();
                     Etat = ETAT_MENU;
                 }
                 ResetMes(&mesUsername, &BarreUsername); //On reset la barre de saisie Username et Password
@@ -347,7 +346,7 @@ void* MessagerieThread(void* arg)
             {
                 getTime(DataBloc.date);                                     //On met à jour l'heure d'envoie du message
                 ajout_block(&DataBloc);                                     //On ajoute le message à la blockchain
-                SaveBlockChain2(FileNameBC);                                //Sauvegarde de la blockchain
+                SaveBlockChain2(FileNameBC);                                 //Sauvegarde de la blockchain
                 strcpy(DataBloc.message, "");                               //On reset les données de la barre de saisie et les inputs
                 ResetInput();
                 ResetMes(&mes, &Barre);
