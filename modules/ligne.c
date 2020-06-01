@@ -101,7 +101,9 @@ int sendBlockchain(int fdsocket)
   struct bloc* current = Genesis->premier;
   while(current != NULL && ret != -1)
   {
-    toString(current, ligne); // à modifier
+    toString(current, ligne); // il n'y a pas le hash   
+    strcat(ligne, current->Hash);
+    strcat(ligne,"~");
     ret = ecrireLigne(fdsocket, ligne, end);
   }
   return ret;
@@ -117,32 +119,85 @@ int getBlockChain(int fdsocket)
   char buffer[LIGNE_MAX];
   int decalage;
   int i = 0;
+  struct bloc* current = Genesis->premier;
   while(lireLigne(fdsocket, blocString, end)>0)
   {
     decalage = 0;
     i = 0;
     while(lireLigne2(blocString + decalage, buffer, separateur)>0)
     {
-      strcpy(tabfeature[i], buffer);
-      decalage = strlen(buffer)+1;  //On supprime le début de blocString
+      strcpy(tabfeature[i], buffer);      
+      decalage += strlen(buffer)+1;  //On supprime buffer de blocString
       i++;
     }
-    
+    struct bloc nouveau;
+    stringToBlock(tabfeature, &nouveau);
+    nouveau.lien = NULL;
+    current = Genesis->premier;
+    while(current != NULL)
+    {
+      current = current->lien;
+    }
+    current->lien = &nouveau;
   }
 
 }
 
 
-void stringToBlock(char tabfeatures[7][BLOCK_STR_SIZE]) 
+void stringToBlock(char tabfeatures[7][BLOCK_STR_SIZE], struct bloc* current) 
 {
-  struct bloc current;
-  strcpy(current.precHash, tabfeatures[2]);
-  current.index = strtol(tabfeatures[0], NULL, 10);
-  current.nonce = strtol(tabfeatures[1], NULL, 10);
   
-  strcpy(current.donnee->date, tabfeatures[3]);
-  strcpy(current.donnee->dest, tabfeatures[4]);
-  strcpy(current.donnee->exp, tabfeatures[5]);
-  strcpy(current.donnee->message, tabfeatures[6]);
+  strcpy(current->precHash, tabfeatures[0]);
+  current->index = strtol(tabfeatures[1], NULL, 10);
+  current->nonce = strtol(tabfeatures[2], NULL, 10);  
+  strcpy(current->donnee->date, tabfeatures[3]);
+  strcpy(current->donnee->dest, tabfeatures[4]);
+  strcpy(current->donnee->exp, tabfeatures[5]);
+  strcpy(current->donnee->message, tabfeatures[6]);
+  strcpy(current->donnee->message, tabfeatures[7]);
 
+}
+
+
+int sendTabID(int fdsocket)
+{
+  char ligne[LIGNE_MAX];
+  char end = '|';
+  int ret = 0;
+  int taille = TabID.taille;
+  for(int i = 0; i<taille; i++)
+  {
+    strcat(ligne, TabID.ID[i].username);
+    strcat(ligne,"~");
+    strcat(ligne, TabID.ID[i].password);
+    strcat(ligne,"~");
+    ret = ecrireLigne(fdsocket, ligne, end);
+  }
+  return ret;
+}
+
+int getTabID(int fdsocket)
+{
+  int ret = 0;
+  char end = '|';
+  char separateur = '~';
+  char IDstring[LIGNE_MAX];
+  char buffer[LIGNE_MAX];
+  int decalage;
+  char tabfeature[2][LIGNE_MAX];  //Tab de char qui va contenir les donées du bloc
+  int i = 0;
+  while(lireLigne(fdsocket, IDstring, end)>0)
+  {
+    decalage = 0;
+    struct Identifiant newID;
+    while(lireLigne2(IDstring + decalage, buffer, separateur)>0)
+    {
+      strcat(tabfeature[i], buffer);
+      decalage += strlen(buffer)+1;  //On supprime buffer de IDstring
+    }
+    strcat(newID.username, tabfeature[0]);
+    strcat(newID.password, tabfeature[1]);
+    insertElementToTabID(&TabID, &newID);
+
+  }
 }

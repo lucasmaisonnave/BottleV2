@@ -18,10 +18,10 @@ char *toString(struct bloc *bloc, char *str)    //Conversion d'un block en type 
     if(bloc == NULL)
         return NULL;
     char block_string[BLOCK_STR_SIZE] = "";
-    sprintf(block_string, "%d~%d", bloc->index, bloc->nonce);
-    strcat(block_string, "~");
     strcat(block_string, bloc->precHash);
     strcat(block_string, "~");
+    sprintf(block_string, "%d~%d", bloc->nonce, bloc->index);
+    strcat(block_string, "~");    
     strcat(block_string, bloc->donnee->date);
     strcat(block_string, "~");
     strcat(block_string, bloc->donnee->dest);

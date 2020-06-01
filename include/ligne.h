@@ -43,11 +43,26 @@ int ecrireLigne (int fd, char *buffer, char end) ;
 */
 int sendBlockchain(int fdsocket);
 
-
+/*
+  met à jour la blockchain lisant le contenu de fdsocket
+*/
 int getBlockChain(int fdsocket);
 
-void stringToBlock(char tabfeatures[7][BLOCK_STR_SIZE]);
+/*
+  Transforme le tableau des features (string) en block à ajouter dans la
+  blockchain
+*/
+void stringToBlock(char tabfeatures[7][BLOCK_STR_SIZE], struct bloc* current);
 
+/*
+  Envoie le tableau des ID dans fsocket
+*/
+int sendTabID(int fdsocket);
+
+/*
+  met à jour le Tableau des identifiants en lisant le contenu de fdsocket
+*/
+int getTabID(int fdsocket);
 
 #endif
 
