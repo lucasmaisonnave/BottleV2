@@ -37,6 +37,32 @@ int lireLigne(int fd, char *buffer, char end) {
   return LIGNE_MAX;
 }
 
+
+int lireLigne2(char* chaine, char *buffer, char end)
+{
+  ssize_t taille = strlen(chaine);
+  char car;
+  int i;
+
+  if (buffer == NULL || taille == 0) {
+    errno = EINVAL;
+    return -1;
+  }
+  
+  for (i = 0; i < taille; i++) {
+    car = chaine[i];
+    if (car == end) {  
+      buffer[i] = '\0';
+      i++;
+      return i;
+    }
+    buffer[i] = car;    
+  }
+  
+  buffer[i] = '\0';
+  return LIGNE_MAX;
+}
+
 int ecrireLigne(int fd, char *buffer, char end) {
   char *position;
   int taille, ecr, nbecr;
@@ -75,7 +101,7 @@ int sendBlockchain(int fdsocket)
   struct bloc* current = Genesis->premier;
   while(current != NULL && ret != -1)
   {
-    toString(current, ligne);
+    toString(current, ligne); // à modifier
     ret = ecrireLigne(fdsocket, ligne, end);
   }
   return ret;
@@ -83,25 +109,40 @@ int sendBlockchain(int fdsocket)
 
 int getBlockChain(int fdsocket)
 {
-  initGenesis();
-  struct bloc* current = Genesis->premier;
   char blocString[BLOCK_STR_SIZE];
   int ret = 0;
   char end = '|';
   char separateur = '~';
-  char feature[LIGNE_MAX];
+  char tabfeature[8][LIGNE_MAX];  //Tab de char qui va contenir les donées du bloc
   char buffer[LIGNE_MAX];
+  int decalage;
+  int i = 0;
   while(lireLigne(fdsocket, blocString, end)>0)
   {
-    strcpy(buffer, strchr(blocString, separateur));
-    while(buffer != NULL)
+    decalage = 0;
+    i = 0;
+    while(lireLigne2(blocString + decalage, buffer, separateur)>0)
     {
-      strrcpy(feature, blocString);
-      
-      strcpy(blocString, buffer+1); //On copie ce qu'il y a après ~
-
+      strcpy(tabfeature[i], buffer);
+      decalage = strlen(buffer)+1;  //On supprime le début de blocString
+      i++;
     }
+    
   }
 
 }
 
+
+void stringToBlock(char tabfeatures[7][BLOCK_STR_SIZE]) 
+{
+  struct bloc current;
+  strcpy(current.precHash, tabfeatures[2]);
+  current.index = strtol(tabfeatures[0], NULL, 10);
+  current.nonce = strtol(tabfeatures[1], NULL, 10);
+  
+  strcpy(current.donnee->date, tabfeatures[3]);
+  strcpy(current.donnee->dest, tabfeatures[4]);
+  strcpy(current.donnee->exp, tabfeatures[5]);
+  strcpy(current.donnee->message, tabfeatures[6]);
+
+}
