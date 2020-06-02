@@ -15,6 +15,17 @@
 #define LIGNE_EOF 0
 
 /*
+  Désigne la fin d'un mot : Bloc0 | Bloc1
+*/
+#define END '|'
+
+/*
+  Désigne la séparation entre les caractéristiques
+  du mot : Username~Password
+*/
+#define SEPARATEUR '~'
+
+/*
   lit une ligne de texte depuis le fichier de descripteur fd : lit des
   caracteres jusqu'a rencontrer le caractere end et les stocke dans le buffer
   indique
@@ -41,28 +52,39 @@ int ecrireLigne (int fd, char *buffer, char end) ;
   Envoie la blockchain dans le canal fdsocket
   retourne -1 s'il y a une erreur
 */
-int sendBlockchain(int fdsocket);
+void sendBlockchain(int fdsocket);
 
 /*
   met à jour la blockchain lisant le contenu de fdsocket
 */
-int getBlockChain(int fdsocket);
+void getBlockChain(int fdsocket);
 
 /*
-  Transforme le tableau des features (string) en block à ajouter dans la
+  Transforme blocString (string) en block qui est ensuite ajouter à la
   blockchain
 */
-void stringToBlock(char tabfeatures[7][BLOCK_STR_SIZE], struct bloc* current);
+void stringToBlock(char blocString[BLOCK_STR_SIZE]);
+
+/*
+  Transforme IDstring (string) en ID qui est ensuite ajouter à la
+  TabID
+*/
+void stringToID(char IDstring[LIGNE_MAX]);
+
 
 /*
   Envoie le tableau des ID dans fsocket
 */
-int sendTabID(int fdsocket);
+void sendTabID(int fdsocket);
 
 /*
   met à jour le Tableau des identifiants en lisant le contenu de fdsocket
 */
-int getTabID(int fdsocket);
+void getTabID(int fdsocket);
+
+void refreshBC(int fd);
+
+void refreshTabID(int fd);
 
 #endif
 

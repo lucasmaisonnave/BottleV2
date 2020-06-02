@@ -38,17 +38,22 @@ int main(int argc, char *argv[])
     init_global(&Bottle);
     
     Etat = ETAT_MENU;
-
-    LoadTabIDFromFile(&TabID, FileNameID);
-    LoadBlockChainFromFile1(FileNameBC);
+    char buffer[LIGNE_MAX];
+    char end = '\n';
+    strcpy(buffer, "Demande envoie ID");
+    ecrireLigne(sock,buffer, end);
+    getTabID(sock);
+    strcpy(buffer, "Demande envoie BC");
+    ecrireLigne(sock,buffer, '\n');
+    getBlockChain(sock);
 
     
     /*-------Threads--------*/
     pthread_t id[4];
-    int ret1 = pthread_create(&id[0], NULL, MenuThread, NULL);
-    int ret2 = pthread_create(&id[1], NULL, CompteConnecterThread, NULL);
-    int ret3 = pthread_create(&id[2], NULL, DestinataireThread, NULL);
-    int ret4 = pthread_create(&id[3], NULL, MessagerieThread, NULL);
+    int ret1 = pthread_create(&id[0], NULL, MenuThread, &sock);
+    int ret2 = pthread_create(&id[1], NULL, CompteConnecterThread, &sock);
+    int ret3 = pthread_create(&id[2], NULL, DestinataireThread, &sock);
+    int ret4 = pthread_create(&id[3], NULL, MessagerieThread, &sock);
     /*----------------------*/    
 
     while(Etat != ETAT_QUIT)
@@ -78,6 +83,8 @@ int main(int argc, char *argv[])
     SDL_Quit();
     if (close(sock) == -1)
         erreur_IO("fermeture socket");
+    strcpy(buffer, "fin");
+    ecrireLigne(sock,buffer, end);
 
     exit(EXIT_SUCCESS);
 }

@@ -10,12 +10,12 @@ void creerCohorteWorkers(void);
 int chercherWorkerLibre(void);
 void *threadWorker(void *arg);
 void sessionClient(int canal);
-int ecrireDansJournal(char *ligne);
-void remiseAZeroJournal(void);
-void lockMutexFdJournal(void);
-void unlockMutexFdJournal(void);
-void lockMutexCanal(int numWorker);
-void unlockMutexCanal(int numWorker);
+void ecrireDansFdBC(void);
+void ecrireDansFdID(void);
+void remiseAZeroFdBC(void);
+void remiseAZeroFdID(void);
+void lockMutexFd(pthread_mutex_t* mutexFd);
+void unlockMutexFd(pthread_mutex_t* mutexFd);
 
 int fdBC, fdID;
 DataSpec dataSpec[NB_WORKERS];
@@ -23,7 +23,9 @@ sem_t semWorkersLibres;
 
 // mutex pour acces concurrent au descripteur du fichier journal et au canal de
 // chaque worker
-pthread_mutex_t mutexFdJournal;
+pthread_mutex_t mutexFdBC;
+pthread_mutex_t mutexFdID;
+
 pthread_mutex_t mutexCanal[NB_WORKERS];
 
 int main(int argc, char *argv[]) {
@@ -94,8 +96,10 @@ int main(int argc, char *argv[]) {
   if (close(ecoute) == -1)
     erreur_IO("fermeture ecoute");
 
-  if (close(fdJournal) == -1)
-    erreur_IO("fermeture journal");
+  if (close(fdBC) == -1)
+    erreur_IO("fermeture SaveBC");
+  if (close(fdID) == -1)
+    erreur_IO("fermeture SaveID");
 
   exit(EXIT_SUCCESS);
 }
@@ -163,93 +167,123 @@ void sessionClient(int canal) {
   int fin = FAUX;
   char ligne[LIGNE_MAX];
   int lgLue, lgEcr;
+  char end;
 
-  while (!fin) {
-    lgLue = lireLigne(canal, ligne);
+  while (!fin) 
+  {
+    lgLue = lireLigne(canal, ligne, '\n');
     if (lgLue == -1)
       erreur_IO("lecture canal");
 
-    else if (lgLue == 0) {  // arret du client (CTRL-D, interruption)
+    else if (lgLue == 0) // arret du client (CTRL-D, interruption)
+    {  
       fin = VRAI;
       printf("%s: arret du client\n", CMD);
     }
-    else {  // lgLue > 0
-      if (strcmp(ligne, "fin") == 0) {
+    else // lgLue > 0
+    {  
+      if (strcmp(ligne, "fin") == 0) 
+      {
         fin = VRAI;
         printf("%s: fin session client\n", CMD);
       }
-      else if (strcmp(ligne, "init") == 0) {
-        remiseAZeroJournal();
-        printf("%s: remise a zero du journal\n", CMD);
+      else if (strcmp(ligne, "Demande envoie TabID"))  //Client demande qu'on lui envoie TabID
+      {
+        sendTabID(canal);
+        end = '|';
+        strcpy(ligne, "fin TabID");
+        ecrireLigne(canal, ligne, end);
       }
-      else {
-        lgEcr = ecrireLigne(fdJournal, ligne);
-        if (lgEcr < 0)
-          erreur_IO("ecriture journal");
-        printf("%s: ligne de %d octets ecrite dans journal\n", CMD, lgEcr);
+      else if (strcmp(ligne, "Demande envoie BC"))  //Client demande qu'onn lui envoie la BlockChain
+      {
+        sendTabID(canal);
+        end = '|';                        //On envoie "fin BC|" pour signifié au client que la transmition de la BlockChain est finie
+        strcpy(ligne, "fin BC");
+        ecrireLigne(canal, ligne, end);
+      }
+      else if (strcmp(ligne, "Demande reception TabID"))
+      {
+        getTabID(canal);          //On récupère TabID
+        remiseAZeroFdID();        //On sauvegarde la TabID dans fdID donc on le réinitialise avant
+        ecrireDansFdID();
+      }
+      else if (strcmp(ligne, "Demande recption BC"))
+      {
+        getBlockChain(canal);     //On récupère BlockChain
+        remiseAZeroFdBC();    //On sauvegarde la BlockChain dans fdBC donc on le réinitialise avant
+        ecrireDansFdBC();
       }
     }
   }
-
   if (close(canal) == -1)
     erreur_IO("fermeture canal");
 }
 
-int ecrireDansJournal(char *ligne) {
-  int lg;
+  
 
-  lockMutexFdJournal();
-  lg = ecrireLigne(fdJournal, ligne);
+void ecrireDansFdBC(void)
+{
+  char buffer[LIGNE_MAX];
+  strcpy(buffer, "fin BC");
+  char end = END;
+  lockMutexFd(&mutexFdBC);
+  sendBlockchain(fdBC);
+  ecrireLigne(fdBC, buffer, end);
+  unlockMutexFd(&mutexFdBC);
+}
+void ecrireDansFdID(void)
+{
+  char buffer[LIGNE_MAX];
+  strcpy(buffer, "fin ID");
+  char end = END;
+  lockMutexFd(&mutexFdID);
+  sendTabID(fdID);
+  ecrireLigne(fdBC, buffer, end);
+  unlockMutexFd(&mutexFdID);
+}
+
+void remiseAZeroFdBC(void)
+{
+  lockMutexFd(&mutexFdBC);
+
+  if (close(fdBC) < 0)
+    erreur_IO("fermeture fichier pour remise a zero");
+
+  fdBC = open("SaveBC.log", O_TRUNC|O_WRONLY|O_APPEND);
+  if (fdBC < 0)
+    erreur_IO("reouverture SaveBC");
+
   unlockMutexFdJournal();
-
-  return lg;
 }
 
-void remiseAZeroJournal(void) {
-  lockMutexFdJournal();
+void remiseAZeroFdID(void)
+{
+  lockMutexFd(&mutexFdID);
 
-  if (close(fdJournal) < 0)
-    erreur_IO("fermeture journal pour remise a zero");
+  if (close(fdID) < 0)
+    erreur_IO("fermeture fichier pour remise a zero");
 
-  fdJournal = open("journal.log", O_TRUNC|O_WRONLY|O_APPEND);
-  if (fdJournal < 0)
-    erreur_IO("reouverture journal");
+  fdID = open("SaveID.log", O_TRUNC|O_WRONLY|O_APPEND);
+  if (fdID < 0)
+    erreur_IO("reouverture SaveID");
 
   unlockMutexFdJournal();
 }
 
-void lockMutexFdJournal(void)
+void lockMutexFd(pthread_mutex_t* mutexFd)
 {
   int ret;
 
-  ret = pthread_mutex_lock(&mutexFdJournal);
+  ret = pthread_mutex_lock(mutexFd);
   if (ret != 0)
-    erreur_IO("lock mutex descipteur journal");
+    erreur_IO("lock mutex descipteur");
 }
-
-void unlockMutexFdJournal(void)
+void unlockMutexFd(pthread_mutex_t* mutexFd)
 {
   int ret;
 
-  ret = pthread_mutex_unlock(&mutexFdJournal);
+  ret = pthread_mutex_unlock(mutexFd);
   if (ret != 0)
-    erreur_IO("unlock mutex descipteur journal");
+    erreur_IO("unlock mutex descipteur");
 }
 
-void lockMutexCanal(int numWorker)
-{
-  int ret;
-
-  ret = pthread_mutex_lock(&mutexCanal[numWorker]);
-  if (ret != 0)
-    erreur_IO("lock mutex canal");
-}
-
-void unlockMutexCanal(int numWorker)
-{
-  int ret;
-
-  ret = pthread_mutex_unlock(&mutexCanal[numWorker]);
-  if (ret != 0)
-    erreur_IO("unlock mutex canal");
-}

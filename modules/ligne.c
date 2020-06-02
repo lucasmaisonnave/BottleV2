@@ -93,111 +93,130 @@ int ecrireLigne(int fd, char *buffer, char end) {
   return nbecr;
 }
 
-int sendBlockchain(int fdsocket)
+void sendBlockchain(int fdsocket)
 {
   char ligne[LIGNE_MAX];
-  char end = '|';
   int ret = 0;
   struct bloc* current = Genesis->premier;
+  char separateur = SEPARATEUR;
+  char end = END;
   while(current != NULL && ret != -1)
   {
     toString(current, ligne); // il n'y a pas le hash   
     strcat(ligne, current->Hash);
-    strcat(ligne,"~");
+    strcat(ligne,&separateur);
     ret = ecrireLigne(fdsocket, ligne, end);
   }
-  return ret;
 }
 
-int getBlockChain(int fdsocket)
+void getBlockChain(int fdsocket)
 {
   char blocString[BLOCK_STR_SIZE];
-  int ret = 0;
-  char end = '|';
-  char separateur = '~';
-  char tabfeature[8][LIGNE_MAX];  //Tab de char qui va contenir les donées du bloc
-  char buffer[LIGNE_MAX];
-  int decalage;
-  int i = 0;
-  struct bloc* current = Genesis->premier;
-  while(lireLigne(fdsocket, blocString, end)>0)
+  char end = END;
+  lireLigne(fdsocket, blocString, end);
+  while(strcmp(blocString, "fin BC") != 0)
   {
-    decalage = 0;
-    i = 0;
-    while(lireLigne2(blocString + decalage, buffer, separateur)>0)
-    {
-      strcpy(tabfeature[i], buffer);      
-      decalage += strlen(buffer)+1;  //On supprime buffer de blocString
-      i++;
-    }
-    struct bloc nouveau;
-    stringToBlock(tabfeature, &nouveau);
-    nouveau.lien = NULL;
-    current = Genesis->premier;
-    while(current != NULL)
-    {
-      current = current->lien;
-    }
-    current->lien = &nouveau;
+    stringToBlock(blocString);
+    lireLigne(fdsocket, blocString, end);
   }
-
 }
 
 
-void stringToBlock(char tabfeatures[7][BLOCK_STR_SIZE], struct bloc* current) 
+void stringToBlock(char blocString[BLOCK_STR_SIZE]) 
 {
-  
-  strcpy(current->precHash, tabfeatures[0]);
-  current->index = strtol(tabfeatures[1], NULL, 10);
-  current->nonce = strtol(tabfeatures[2], NULL, 10);  
-  strcpy(current->donnee->date, tabfeatures[3]);
-  strcpy(current->donnee->dest, tabfeatures[4]);
-  strcpy(current->donnee->exp, tabfeatures[5]);
-  strcpy(current->donnee->message, tabfeatures[6]);
-  strcpy(current->donnee->message, tabfeatures[7]);
+  char tabfeature[8][LIGNE_MAX];  //Tab de char qui va contenir les donées du bloc
+  int decalage = 0;
+  char buffer[LIGNE_MAX];
+  struct bloc* current = (struct bloc*)malloc(sizeof(struct bloc));
+  char separateur = SEPARATEUR;
+  for(int i = 0; i<8; i++)
+  {
+    lireLigne2(blocString + decalage, buffer, separateur);
+    strcpy(tabfeature[i], buffer);      
+    decalage += strlen(buffer)+1;  //On supprime buffer de blocString
+    i++;
+  }
+  struct bloc nouveau;
+  strcpy(nouveau.precHash, tabfeature[0]);
+  nouveau.index = strtol(tabfeature[1], NULL, 10);
+  nouveau.nonce = strtol(tabfeature[2], NULL, 10);  
+  strcpy(nouveau.donnee->date, tabfeature[3]);
+  strcpy(nouveau.donnee->dest, tabfeature[4]);
+  strcpy(nouveau.donnee->exp, tabfeature[5]);
+  strcpy(nouveau.donnee->message, tabfeature[6]);
+  strcpy(nouveau.donnee->message, tabfeature[7]);
+  nouveau.lien = NULL;
+  current = Genesis->premier;
+  while(current != NULL)
+  {
+    current = current->lien;
+  }
+  current->lien = &nouveau;
 
 }
 
 
-int sendTabID(int fdsocket)
+void sendTabID(int fdsocket)
 {
   char ligne[LIGNE_MAX];
-  char end = '|';
-  int ret = 0;
   int taille = TabID.taille;
+  char separateur = SEPARATEUR;
+  char end = END;
   for(int i = 0; i<taille; i++)
   {
     strcat(ligne, TabID.ID[i].username);
-    strcat(ligne,"~");
+    strcat(ligne,&separateur);
     strcat(ligne, TabID.ID[i].password);
-    strcat(ligne,"~");
-    ret = ecrireLigne(fdsocket, ligne, end);
+    strcat(ligne,&separateur);
+    ecrireLigne(fdsocket, ligne, end);
   }
-  return ret;
 }
 
-int getTabID(int fdsocket)
+void stringToID(char IDstring[LIGNE_MAX])
 {
-  int ret = 0;
-  char end = '|';
-  char separateur = '~';
-  char IDstring[LIGNE_MAX];
+  int decalage = 0;
+  struct Identifiant newID;
   char buffer[LIGNE_MAX];
-  int decalage;
-  char tabfeature[2][LIGNE_MAX];  //Tab de char qui va contenir les donées du bloc
-  int i = 0;
-  while(lireLigne(fdsocket, IDstring, end)>0)
+  char tabfeature[2][LIGNE_MAX];
+  char separateur = SEPARATEUR;
+  for(int i = 0; i<2; i++)
   {
-    decalage = 0;
-    struct Identifiant newID;
-    while(lireLigne2(IDstring + decalage, buffer, separateur)>0)
-    {
-      strcat(tabfeature[i], buffer);
-      decalage += strlen(buffer)+1;  //On supprime buffer de IDstring
-    }
-    strcat(newID.username, tabfeature[0]);
-    strcat(newID.password, tabfeature[1]);
-    insertElementToTabID(&TabID, &newID);
-
+    lireLigne2(IDstring + decalage, buffer, separateur);
+    strcat(tabfeature[i], buffer);
+    decalage += strlen(buffer)+1;  //On supprime buffer de IDstring
   }
+  strcat(newID.username, tabfeature[0]);
+  strcat(newID.password, tabfeature[1]);
+  insertElementToTabID(&TabID, &newID);
+}
+
+
+void getTabID(int fdsocket)
+{
+  char IDstring[LIGNE_MAX];
+  char end = END;
+  lireLigne(fdsocket, IDstring, end);
+  while(strcmp(IDstring, "fin TabID") != 0)
+  {
+    stringToID(IDstring);
+    lireLigne(fdsocket, IDstring, end);
+  }
+}
+
+void refreshBC(int fd)
+{
+  char requete[LIGNE_MAX];    //Requête à envoyé au serveur
+  char end = '\n';            //Fin de la requête
+  strcpy(requete, "Demande envoie BC");                       //Mise à jour de BlockChain
+  ecrireLigne(fd,requete, end);
+  getBlockChain(fd);
+}
+
+void refreshTabID(int fd)
+{
+  char requete[LIGNE_MAX];    //Requête à envoyé au serveur
+  char end = '\n';            //Fin de la requête
+  strcpy(requete, "Demande envoie ID");                       //Mise à jour de BlockChain
+  ecrireLigne(fd,requete, end);
+  getTabID(fd);
 }

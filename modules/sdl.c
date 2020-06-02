@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "sdl.h"
+#include "ligne.h"
 #include "blockchain.h"
 #include <SDL2/SDL_ttf.h>   //apt-get install libsdl2-ttf-dev
 #include <SDL2/SDL_image.h> //apt-get install libsdl2-image-dev
@@ -204,6 +205,9 @@ void* MenuThread(void* arg)
 
 void* CompteConnecterThread(void* arg)
 {
+    int canal = *(int*)arg;     //Le canal de communiquation avec server
+    char requete[LIGNE_MAX];    //Requête à envoyé au serveur
+    char end = '\n';            //Fin de la requête
     SDL_Rect BarreUsername;
     BarreUsername.x = 765; BarreUsername.y = 305; BarreUsername.h = 50; BarreUsername.w = 535;
     SDL_Rect BarrePassword;
@@ -239,6 +243,7 @@ void* CompteConnecterThread(void* arg)
             if(Input.BouttonClavier == SDLK_RETURN)     //On appuie sur entrée
             {
                 ResetInput();
+                refreshID(canal);               //Mise à jour de TabID
                 if(Etat == ETAT_CONNECTION && checkExistenceElementInTabID(&TabID, &Id))    //Cas où on est dans Se connecter on vérifie que les identifiants rentrés sont correct et on passe à la messagerie
                 {
                     strcpy(expediteur, Id.username);      //On met à jour la variable expediteur
@@ -260,6 +265,7 @@ void* CompteConnecterThread(void* arg)
 
 void* DestinataireThread(void* arg)
 {
+    int canal = *(int*)arg;     //Le canal de communiquation avec server
     char User[MAX_WORD_LENGHT];
     SDL_Rect Barre;
     Barre.x = 83; Barre.y = 220; Barre.h = 60; Barre.w = 1310;  //Ce ne sont pas les bonnes valeurs il faut les changer
@@ -282,12 +288,13 @@ void* DestinataireThread(void* arg)
             if(Input.BouttonClavier == SDLK_RETURN) //On appuie sur entrée on test si l'utilisateur écris est valide et on passe à la messagerie et on reset la page
             {   
                 ResetInput();
+                refreshTabID(canal);                //Mise à jour de TabID
                 if(IsValidUsername(User, &TabID))   //Test de validité de l'utilisateur rentré
                 {                    
                     strcpy(destinataire, User);     //On met à jour le destinataire
                     Etat = ETAT_MESSAGERIE;         //On passe à la messagerie
                 }
-                else                                //Si le nom rentré 'est pas valide un reset l'affichage
+                else                                //Si le nom rentré n'est pas valide un reset l'affichage
                 {
                     DisplayBackground(Bottle.destinataire_Texture);
                     DisplayUsers(&TabID, &Bottle);
@@ -302,6 +309,7 @@ void* DestinataireThread(void* arg)
 
 void* MessagerieThread(void* arg)
 {
+    int canal = *(int*)arg;     //Le canal de communiquation avec server
     SDL_Rect Barre;
     Barre.x = 30; Barre.y = 670; Barre.h = 60; Barre.w = 1310;  //Barre de Saisie
     SDL_Rect Retour;
@@ -319,6 +327,7 @@ void* MessagerieThread(void* arg)
     while(1)
     {
         while(Etat != ETAT_MESSAGERIE);
+        refreshBC(canal);               //Mise à jour de la BlockChain
         strcpy(DataBloc.exp, expediteur);
         strcpy(DataBloc.dest, destinataire);
         DisplayBackground(Bottle.messagerie_Texture);   //Affichage du fond
@@ -336,6 +345,7 @@ void* MessagerieThread(void* arg)
             }
             if(SDL_PointInRect(&Input.PointPressed, &Refresh)) //On refresh la page
             {
+                refreshBC(canal);                                           //Mise à jour de la BlockChain
                 DisplayBackground(Bottle.messagerie_Texture);               //Affichage du fond
                 DisplayMessagerie(DataBloc.exp, DataBloc.dest, &Bottle);    //Affichage des messages et de exp et dest
                 ResetInput();                                               //On reste input et message
@@ -344,9 +354,12 @@ void* MessagerieThread(void* arg)
             }
             if(Input.BouttonClavier == SDLK_RETURN) //Envoie du message
             {
+                refreshBC(canal);                                           //Mise à jour de la BlockChain
                 getTime(DataBloc.date);                                     //On met à jour l'heure d'envoie du message
                 ajout_block(&DataBloc);                                     //On ajoute le message à la blockchain
-                SaveBlockChain2(FileNameBC);                                 //Sauvegarde de la blockchain
+                strcpy(requete, "Demande envoie BC");                       //Envoie de la block chain mise à jour
+                ecrireLigne(canal,requete, end);
+                sendBlockChain(canal);
                 strcpy(DataBloc.message, "");                               //On reset les données de la barre de saisie et les inputs
                 ResetInput();
                 ResetMes(&mes, &Barre);
