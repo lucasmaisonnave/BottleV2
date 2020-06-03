@@ -243,7 +243,7 @@ void* CompteConnecterThread(void* arg)
             if(Input.BouttonClavier == SDLK_RETURN)     //On appuie sur entrée
             {
                 ResetInput();
-                refreshID(canal);               //Mise à jour de TabID
+                refreshTabID(canal);               //Mise à jour de TabID
                 if(Etat == ETAT_CONNECTION && checkExistenceElementInTabID(&TabID, &Id))    //Cas où on est dans Se connecter on vérifie que les identifiants rentrés sont correct et on passe à la messagerie
                 {
                     strcpy(expediteur, Id.username);      //On met à jour la variable expediteur
@@ -357,9 +357,9 @@ void* MessagerieThread(void* arg)
                 refreshBC(canal);                                           //Mise à jour de la BlockChain
                 getTime(DataBloc.date);                                     //On met à jour l'heure d'envoie du message
                 ajout_block(&DataBloc);                                     //On ajoute le message à la blockchain
-                strcpy(requete, "Demande envoie BC");                       //Envoie de la block chain mise à jour
-                ecrireLigne(canal,requete, end);
-                sendBlockChain(canal);
+                //strcpy(requete, "Demande envoie BC");                       //Envoie de la block chain mise à jour
+                //ecrireLigne(canal,requete, end);
+                sendBlockchain(canal);
                 strcpy(DataBloc.message, "");                               //On reset les données de la barre de saisie et les inputs
                 ResetInput();
                 ResetMes(&mes, &Barre);

@@ -40,9 +40,10 @@ int main(int argc, char *argv[])
     Etat = ETAT_MENU;
     char buffer[LIGNE_MAX];
     char end = '\n';
-    strcpy(buffer, "Demande envoie ID");
+    strcpy(buffer, "Demande envoie TabID");
     ecrireLigne(sock,buffer, end);
     getTabID(sock);
+    printTabID(&TabID);
     strcpy(buffer, "Demande envoie BC");
     ecrireLigne(sock,buffer, '\n');
     getBlockChain(sock);

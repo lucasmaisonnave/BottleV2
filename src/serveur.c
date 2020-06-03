@@ -126,9 +126,9 @@ int chercherWorkerLibre(void) {
   int i, canal;
 
   for (i = 0; i < NB_WORKERS; i++) {
-    lockMutexCanal(i);
+    lockMutexFd(&mutexCanal[i]);
     canal = dataSpec[i].canal;
-    unlockMutexCanal(i);
+    unlockMutexFd(&mutexCanal[i]);
     if (canal < 0)
       return i;
   }
@@ -149,9 +149,9 @@ void *threadWorker(void *arg) {
 
     sessionClient(dataSpec->canal);
 
-    lockMutexCanal(dataSpec->tid);
+    lockMutexFd(&mutexCanal[dataSpec->tid]);
     dataSpec->canal = -1;
-    unlockMutexCanal(dataSpec->tid);
+    unlockMutexFd(&mutexCanal[dataSpec->tid]);
 
     printf("worker %d: sommeil\n", dataSpec->tid);
 
@@ -172,6 +172,7 @@ void sessionClient(int canal) {
   while (!fin) 
   {
     lgLue = lireLigne(canal, ligne, '\n');
+    printf("ligne lue : %s\n", ligne);
     if (lgLue == -1)
       erreur_IO("lecture canal");
 
@@ -181,33 +182,30 @@ void sessionClient(int canal) {
       printf("%s: arret du client\n", CMD);
     }
     else // lgLue > 0
-    {  
+    {
       if (strcmp(ligne, "fin") == 0) 
       {
         fin = VRAI;
         printf("%s: fin session client\n", CMD);
       }
-      else if (strcmp(ligne, "Demande envoie TabID"))  //Client demande qu'on lui envoie TabID
+      else if (strcmp(ligne, "Demande envoie TabID") == 0)  //Client demande qu'on lui envoie TabID
       {
+        getTabID(fdID);
+        printTabID(&TabID);
         sendTabID(canal);
-        end = '|';
-        strcpy(ligne, "fin TabID");
-        ecrireLigne(canal, ligne, end);
       }
-      else if (strcmp(ligne, "Demande envoie BC"))  //Client demande qu'onn lui envoie la BlockChain
+      else if (strcmp(ligne, "Demande envoie BC") == 0)  //Client demande qu'onn lui envoie la BlockChain
       {
-        sendTabID(canal);
-        end = '|';                        //On envoie "fin BC|" pour signifié au client que la transmition de la BlockChain est finie
-        strcpy(ligne, "fin BC");
-        ecrireLigne(canal, ligne, end);
+        getBlockChain(fdBC);
+        sendBlockchain(canal);        
       }
-      else if (strcmp(ligne, "Demande reception TabID"))
+      else if (strcmp(ligne, "Demande reception TabID") == 0)
       {
         getTabID(canal);          //On récupère TabID
         remiseAZeroFdID();        //On sauvegarde la TabID dans fdID donc on le réinitialise avant
         ecrireDansFdID();
       }
-      else if (strcmp(ligne, "Demande recption BC"))
+      else if (strcmp(ligne, "Demande recption BC") == 0)
       {
         getBlockChain(canal);     //On récupère BlockChain
         remiseAZeroFdBC();    //On sauvegarde la BlockChain dans fdBC donc on le réinitialise avant
@@ -253,7 +251,7 @@ void remiseAZeroFdBC(void)
   if (fdBC < 0)
     erreur_IO("reouverture SaveBC");
 
-  unlockMutexFdJournal();
+  unlockMutexFd(&mutexFdBC);
 }
 
 void remiseAZeroFdID(void)
@@ -267,7 +265,7 @@ void remiseAZeroFdID(void)
   if (fdID < 0)
     erreur_IO("reouverture SaveID");
 
-  unlockMutexFdJournal();
+  unlockMutexFd(&mutexFdID);
 }
 
 void lockMutexFd(pthread_mutex_t* mutexFd)

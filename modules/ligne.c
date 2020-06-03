@@ -96,10 +96,10 @@ int ecrireLigne(int fd, char *buffer, char end) {
 void sendBlockchain(int fdsocket)
 {
   char ligne[LIGNE_MAX];
-  int ret = 0;
   struct bloc* current = Genesis->premier;
   char separateur = SEPARATEUR;
   char end = END;
+  int ret = 0;
   while(current != NULL && ret != -1)
   {
     toString(current, ligne); // il n'y a pas le hash   
@@ -107,10 +107,14 @@ void sendBlockchain(int fdsocket)
     strcat(ligne,&separateur);
     ret = ecrireLigne(fdsocket, ligne, end);
   }
+  //On envoie "fin BC|" pour signifié au client que la transmition de la BlockChain est finie
+  strcpy(ligne, "fin BC");
+  ecrireLigne(fdsocket, ligne, end);
 }
 
 void getBlockChain(int fdsocket)
 {
+  initGenesis();    //On remet à zéro la BC
   char blocString[BLOCK_STR_SIZE];
   char end = END;
   lireLigne(fdsocket, blocString, end);
@@ -170,6 +174,8 @@ void sendTabID(int fdsocket)
     strcat(ligne,&separateur);
     ecrireLigne(fdsocket, ligne, end);
   }
+  strcpy(ligne, "fin TabID");
+  ecrireLigne(fdsocket, ligne, end);
 }
 
 void stringToID(char IDstring[LIGNE_MAX])
@@ -193,13 +199,14 @@ void stringToID(char IDstring[LIGNE_MAX])
 
 void getTabID(int fdsocket)
 {
+  initTabID(&TabID); //On remet à zéro le TabID
   char IDstring[LIGNE_MAX];
-  char end = END;
-  lireLigne(fdsocket, IDstring, end);
-  while(strcmp(IDstring, "fin TabID") != 0)
+  lireLigne(fdsocket, IDstring, END);
+  printf("IDstring : %s\n", IDstring);
+  while(strcmp(IDstring, "fin TabID") != 0 && IDstring != NULL)
   {
     stringToID(IDstring);
-    lireLigne(fdsocket, IDstring, end);
+    lireLigne(fdsocket, IDstring, END);
   }
 }
 
