@@ -175,7 +175,6 @@ void sessionClient(int canal) {
     printf("ligne lue : %s\n", ligne);
     if (lgLue == -1)
       erreur_IO("lecture canal");
-
     else if (lgLue == 0) // arret du client (CTRL-D, interruption)
     {  
       fin = VRAI;
