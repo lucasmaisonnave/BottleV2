@@ -135,7 +135,7 @@ void DisplayMessagerie(char* exp, char* dest, Data* Bottle)
     Write(Bottle, mes);
 
     mes->textRect.x = 60;
-    struct bloc *currentbloc = Genesis->premier;
+    struct bloc *currentbloc = Genesis.premier;
     int cmpt = 0;               //compteur du nombre de messages affiché et ne doit pas dépasser NbMessages
     mes->textRect.y = 590;
     mes->textRect.h = 25;       //Choisir la largeur du message

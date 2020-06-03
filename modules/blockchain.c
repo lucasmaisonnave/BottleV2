@@ -54,7 +54,7 @@ void printBlock(struct bloc *blocs)     //Imprime un block
 
 void printAllBlock(void)        //Imprime tous les blocks de la blockchain
 {
-    struct bloc * curr = Genesis->premier;
+    struct bloc * curr = Genesis.premier;
     while(curr)
     {
         printBlock(curr);
@@ -203,13 +203,13 @@ char* getTime(char* Time)
 
 void initGenesis()
 {
-    Genesis->premier = NULL;
-    Genesis->taille = 0;
+    Genesis.premier = NULL;
+    Genesis.taille = 0;
 }
 
 void ajout_block(donnee* message)       //Pour l'ajout d'un nouveau block
 {
-    struct bloc *currentbloc = Genesis->premier;
+    struct bloc *currentbloc = Genesis.premier;
 
     struct bloc *nouv_bloc = (struct bloc *)malloc(sizeof(struct bloc));
     nouv_bloc->donnee = (donnee*)malloc(sizeof(donnee));
@@ -234,8 +234,8 @@ void ajout_block(donnee* message)       //Pour l'ajout d'un nouveau block
     if(IsValidBlock(nouv_bloc,currentbloc))     //Test de validité du block
     {
         nouv_bloc->lien = currentbloc;          //Ajout du block au début de la blockchain
-        Genesis->premier = nouv_bloc;
-        Genesis->taille++;
+        Genesis.premier = nouv_bloc;
+        Genesis.taille++;
     }
     else                                        //Bloc Invalide
     {
@@ -314,7 +314,7 @@ bool HashMatchesDifficulty(char Hex[HASH_HEX_SIZE])     //Vérifie que le hash p
 void SaveBlockChain(char* filename)
 {
     FILE* file = fopen(filename, "w");
-    struct bloc* current = Genesis->premier;
+    struct bloc* current = Genesis.premier;
     while(current != NULL)
     {
         printBlock(current);
@@ -350,12 +350,12 @@ void LoadBlockChainFromFile1(char* filename)
         strcat(current->donnee->date, " ");
         strcat(current->donnee->date, annee);
 
-        current->lien = Genesis->premier;        
+        current->lien = Genesis.premier;        
         previous = current->lien;
 
         if(IsValidBlock(current, previous))
         {
-            Genesis->premier = current;
+            Genesis.premier = current;
         }
         else
         {
@@ -396,8 +396,8 @@ void LoadBlockChainFromFile2(char* filename)
         strcat(current->donnee->date, " ");
         strcat(current->donnee->date, annee);
 
-        current->lien = Genesis->premier;        
-        Genesis->premier = current;
+        current->lien = Genesis.premier;        
+        Genesis.premier = current;
         current = (struct bloc *)malloc(sizeof(struct bloc));
         current->donnee = (donnee*)malloc(sizeof(donnee));
     }

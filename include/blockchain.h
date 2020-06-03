@@ -36,7 +36,7 @@
     {
         struct bloc *premier;
         int taille;
-    }*Genesis;
+    }Genesis;
 
 
 

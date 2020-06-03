@@ -7,7 +7,7 @@
 /*
   Taille maximale d'une ligne de texte
 */
-#define LIGNE_MAX 160
+#define LIGNE_MAX BLOCK_STR_SIZE
 
 /*
   Marqueur de fin de fichier

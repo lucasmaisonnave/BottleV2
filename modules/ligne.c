@@ -96,7 +96,7 @@ int ecrireLigne(int fd, char *buffer, char end) {
 void sendBlockchain(int fdsocket)
 {
   char ligne[LIGNE_MAX];
-  struct bloc* current = Genesis->premier;
+  struct bloc* current = Genesis.premier;
   char separateur = SEPARATEUR;
   char end = END;
   int ret = 0;
@@ -136,21 +136,23 @@ void stringToBlock(char blocString[BLOCK_STR_SIZE])
   for(int i = 0; i<8; i++)
   {
     lireLigne2(blocString + decalage, buffer, separateur);
+    printf("buffer : %s\n", buffer);
     strcpy(tabfeature[i], buffer);      
     decalage += strlen(buffer)+1;  //On supprime buffer de blocString
     i++;
   }
   struct bloc nouveau;
   strcpy(nouveau.precHash, tabfeature[0]);
-  nouveau.index = strtol(tabfeature[1], NULL, 10);
-  nouveau.nonce = strtol(tabfeature[2], NULL, 10);  
+  nouveau.index = (int)strtol(tabfeature[1], NULL, 10);
+  nouveau.nonce = (int)strtol(tabfeature[2], NULL, 10);  
   strcpy(nouveau.donnee->date, tabfeature[3]);
   strcpy(nouveau.donnee->dest, tabfeature[4]);
   strcpy(nouveau.donnee->exp, tabfeature[5]);
   strcpy(nouveau.donnee->message, tabfeature[6]);
   strcpy(nouveau.donnee->message, tabfeature[7]);
   nouveau.lien = NULL;
-  current = Genesis->premier;
+  printBlock(&nouveau);
+  current = Genesis.premier;
   while(current != NULL)
   {
     current = current->lien;
@@ -164,14 +166,14 @@ void sendTabID(int fdsocket)
 {
   char ligne[LIGNE_MAX];
   int taille = TabID.taille;
-  char separateur = SEPARATEUR;
+  char *separateur = "~";
   char end = END;
   for(int i = 0; i<taille; i++)
   {
-    strcat(ligne, TabID.ID[i].username);
-    strcat(ligne,&separateur);
+    strcpy(ligne, TabID.ID[i].username);
+    strcat(ligne,separateur);
     strcat(ligne, TabID.ID[i].password);
-    strcat(ligne,&separateur);
+    strcat(ligne,separateur);
     ecrireLigne(fdsocket, ligne, end);
   }
   strcpy(ligne, "fin TabID");
@@ -188,11 +190,11 @@ void stringToID(char IDstring[LIGNE_MAX])
   for(int i = 0; i<2; i++)
   {
     lireLigne2(IDstring + decalage, buffer, separateur);
-    strcat(tabfeature[i], buffer);
+    strcpy(tabfeature[i], buffer);
     decalage += strlen(buffer)+1;  //On supprime buffer de IDstring
   }
-  strcat(newID.username, tabfeature[0]);
-  strcat(newID.password, tabfeature[1]);
+  strcpy(newID.username, tabfeature[0]);
+  strcpy(newID.password, tabfeature[1]);
   insertElementToTabID(&TabID, &newID);
 }
 
@@ -202,7 +204,6 @@ void getTabID(int fdsocket)
   initTabID(&TabID); //On remet à zéro le TabID
   char IDstring[LIGNE_MAX];
   lireLigne(fdsocket, IDstring, END);
-  printf("IDstring : %s\n", IDstring);
   while(strcmp(IDstring, "fin TabID") != 0 && IDstring != NULL)
   {
     stringToID(IDstring);
@@ -212,9 +213,9 @@ void getTabID(int fdsocket)
 
 void refreshBC(int fd)
 {
-  char requete[LIGNE_MAX];    //Requête à envoyé au serveur
-  char end = '\n';            //Fin de la requête
-  strcpy(requete, "Demande envoie BC");                       //Mise à jour de BlockChain
+  char requete[LIGNE_MAX];                    //Requête à envoyé au serveur
+  char end = '\n';                            //Fin de la requête
+  strcpy(requete, "Demande envoie BC");       //Mise à jour de BlockChain
   ecrireLigne(fd,requete, end);
   getBlockChain(fd);
 }

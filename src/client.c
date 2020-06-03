@@ -32,7 +32,6 @@ int main(int argc, char *argv[])
     if (ret < 0)
         erreur_IO("connect");
 
-    Genesis = (struct genesis*)malloc(sizeof(struct genesis));
     initTabID(&TabID);
     initGenesis();
     init_global(&Bottle);
@@ -43,10 +42,10 @@ int main(int argc, char *argv[])
     strcpy(buffer, "Demande envoie TabID");
     ecrireLigne(sock,buffer, end);
     getTabID(sock);
-    printTabID(&TabID);
     strcpy(buffer, "Demande envoie BC");
     ecrireLigne(sock,buffer, '\n');
     getBlockChain(sock);
+    printAllBlock();
 
     
     /*-------Threads--------*/

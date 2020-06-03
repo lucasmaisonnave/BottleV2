@@ -34,17 +34,21 @@ int main(int argc, char *argv[]) {
   struct sockaddr_in adrEcoute, adrClient;
   unsigned int lgAdrClient;
   int numWorkerLibre;
+  printf("yo\n");
+  initGenesis();
+  
+  initTabID(&TabID);
 
   if (argc != 2)
     erreur("usage: %s port\n", argv[0]);
 
   port = (short)atoi(argv[1]);
 
-  fdBC = open(SaveBC, O_CREAT|O_WRONLY|O_APPEND, 0644);
+  fdBC = open(SaveBC, O_CREAT|O_RDWR|O_APPEND, 0644);
   if (fdBC == -1)
     erreur_IO("ouverture SaveBC");
 
-  fdID = open(SaveID, O_CREAT|O_WRONLY|O_APPEND, 0644);
+  fdID = open(SaveID, O_CREAT|O_RDWR|O_APPEND, 0644);
   if (fdID == -1)
     erreur_IO("ouverture SaveID");
 
@@ -190,13 +194,12 @@ void sessionClient(int canal) {
       else if (strcmp(ligne, "Demande envoie TabID") == 0)  //Client demande qu'on lui envoie TabID
       {
         getTabID(fdID);
-        printTabID(&TabID);
         sendTabID(canal);
       }
       else if (strcmp(ligne, "Demande envoie BC") == 0)  //Client demande qu'onn lui envoie la BlockChain
       {
         getBlockChain(fdBC);
-        sendBlockchain(canal);        
+        sendBlockchain(canal);
       }
       else if (strcmp(ligne, "Demande reception TabID") == 0)
       {
