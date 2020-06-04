@@ -4,6 +4,8 @@
 
 #include "pse.h"
 
+
+
 int lireLigne(int fd, char *buffer, char end) {
   ssize_t nbLus;
   int i;
@@ -43,7 +45,7 @@ int lireLigne2(char* chaine, char *buffer, char end)
   ssize_t taille = strlen(chaine);
   char car;
   int i;
-
+  
   if (buffer == NULL || taille == 0) {
     errno = EINVAL;
     return -1;
@@ -56,9 +58,9 @@ int lireLigne2(char* chaine, char *buffer, char end)
       i++;
       return i;
     }
-    buffer[i] = car;    
+    buffer[i] = car;
+     
   }
-  
   buffer[i] = '\0';
   return LIGNE_MAX;
 }
@@ -97,15 +99,16 @@ void sendBlockchain(int fdsocket)
 {
   char ligne[LIGNE_MAX];
   struct bloc* current = Genesis.premier;
-  char separateur = SEPARATEUR;
+  char *separateur = "~";
   char end = END;
   int ret = 0;
   while(current != NULL && ret != -1)
   {
-    toString(current, ligne); // il n'y a pas le hash   
+    toString(current, ligne); // il n'y a pas le hash
     strcat(ligne, current->Hash);
-    strcat(ligne,&separateur);
+    strcat(ligne,separateur);
     ret = ecrireLigne(fdsocket, ligne, end);
+    current = current->lien;
   }
   //On envoie "fin BC|" pour signifié au client que la transmition de la BlockChain est finie
   strcpy(ligne, "fin BC");
@@ -136,29 +139,35 @@ void stringToBlock(char blocString[BLOCK_STR_SIZE])
   for(int i = 0; i<8; i++)
   {
     lireLigne2(blocString + decalage, buffer, separateur);
-    printf("buffer : %s\n", buffer);
     strcpy(tabfeature[i], buffer);      
     decalage += strlen(buffer)+1;  //On supprime buffer de blocString
-    i++;
-  }
-  struct bloc nouveau;
-  strcpy(nouveau.precHash, tabfeature[0]);
-  nouveau.index = (int)strtol(tabfeature[1], NULL, 10);
-  nouveau.nonce = (int)strtol(tabfeature[2], NULL, 10);  
-  strcpy(nouveau.donnee->date, tabfeature[3]);
-  strcpy(nouveau.donnee->dest, tabfeature[4]);
-  strcpy(nouveau.donnee->exp, tabfeature[5]);
-  strcpy(nouveau.donnee->message, tabfeature[6]);
-  strcpy(nouveau.donnee->message, tabfeature[7]);
-  nouveau.lien = NULL;
-  printBlock(&nouveau);
+  }  
+  struct bloc *nouveau = (struct bloc *)malloc(sizeof(struct bloc));;
+  nouveau->donnee = (donnee*)malloc(sizeof(donnee));
+  
+  nouveau->nonce = (int)strtol(tabfeature[0], NULL, 10);  
+  nouveau->index = (int)strtol(tabfeature[1], NULL, 10);  
+  strcpy(nouveau->precHash, tabfeature[2]);
+  strcpy(nouveau->donnee->date, tabfeature[3]);
+  strcpy(nouveau->donnee->dest, tabfeature[4]);
+  strcpy(nouveau->donnee->exp, tabfeature[5]);
+  strcpy(nouveau->donnee->message, tabfeature[6]);
+  strcpy(nouveau->Hash, tabfeature[7]);
+  
+  nouveau->lien = NULL;
   current = Genesis.premier;
-  while(current != NULL)
+  if(current == NULL)
   {
-    current = current->lien;
+    Genesis.premier = nouveau;
   }
-  current->lien = &nouveau;
-
+  else
+  {
+    while(current->lien != NULL)
+    {
+      current = current->lien;
+    }
+  current->lien = nouveau;
+  }
 }
 
 
@@ -213,18 +222,20 @@ void getTabID(int fdsocket)
 
 void refreshBC(int fd)
 {
-  char requete[LIGNE_MAX];                    //Requête à envoyé au serveur
-  char end = '\n';                            //Fin de la requête
-  strcpy(requete, "Demande envoie BC");       //Mise à jour de BlockChain
-  ecrireLigne(fd,requete, end);
+  ask(fd, ASK_SEND_BC);
   getBlockChain(fd);
 }
 
 void refreshTabID(int fd)
 {
-  char requete[LIGNE_MAX];    //Requête à envoyé au serveur
-  char end = '\n';            //Fin de la requête
-  strcpy(requete, "Demande envoie ID");                       //Mise à jour de BlockChain
-  ecrireLigne(fd,requete, end);
+  ask(fd, ASK_SEND_TABID);                    //Mise à jour de BlockChain
   getTabID(fd);
+}
+
+void ask(int canal, char* message)
+{
+  char buffer[LIGNE_MAX];
+  char end = '\n';
+  strcpy(buffer, message);
+  ecrireLigne(canal,buffer, end);
 }

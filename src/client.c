@@ -37,15 +37,11 @@ int main(int argc, char *argv[])
     init_global(&Bottle);
     
     Etat = ETAT_MENU;
-    char buffer[LIGNE_MAX];
-    char end = '\n';
-    strcpy(buffer, "Demande envoie TabID");
-    ecrireLigne(sock,buffer, end);
+
+    ask(sock, ASK_SEND_TABID);
     getTabID(sock);
-    strcpy(buffer, "Demande envoie BC");
-    ecrireLigne(sock,buffer, '\n');
+    ask(sock, ASK_SEND_BC);
     getBlockChain(sock);
-    printAllBlock();
 
     
     /*-------Threads--------*/
@@ -69,7 +65,6 @@ int main(int argc, char *argv[])
                 case SDL_MOUSEBUTTONDOWN:
                     Input.PointPressed.x = event.button.x;
                     Input.PointPressed.y = event.button.y;
-                    printf("x = %d, y = %d\n", Input.PointPressed.x,Input.PointPressed.y);
                     break;
                 case SDL_KEYDOWN:
                     Input.BouttonClavier = event.key.keysym.sym;
@@ -83,8 +78,7 @@ int main(int argc, char *argv[])
     SDL_Quit();
     if (close(sock) == -1)
         erreur_IO("fermeture socket");
-    strcpy(buffer, "fin");
-    ecrireLigne(sock,buffer, end);
+    ask(sock, ASK_FIN);
 
     exit(EXIT_SUCCESS);
 }

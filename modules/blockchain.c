@@ -18,10 +18,10 @@ char *toString(struct bloc *bloc, char *str)    //Conversion d'un block en type 
     if(bloc == NULL)
         return NULL;
     char block_string[BLOCK_STR_SIZE] = "";
-    strcat(block_string, bloc->precHash);
-    strcat(block_string, "~");
     sprintf(block_string, "%d~%d", bloc->nonce, bloc->index);
-    strcat(block_string, "~");    
+    strcat(block_string, "~"); 
+    strcat(block_string, bloc->precHash);
+    strcat(block_string, "~");       
     strcat(block_string, bloc->donnee->date);
     strcat(block_string, "~");
     strcat(block_string, bloc->donnee->dest);
@@ -233,9 +233,17 @@ void ajout_block(donnee* message)       //Pour l'ajout d'un nouveau block
     calculHash(nouv_bloc);
     if(IsValidBlock(nouv_bloc,currentbloc))     //Test de validité du block
     {
-        nouv_bloc->lien = currentbloc;          //Ajout du block au début de la blockchain
-        Genesis.premier = nouv_bloc;
-        Genesis.taille++;
+        if(currentbloc == NULL)
+        {
+            Genesis.premier = nouv_bloc;
+        }
+        else
+        {
+            while(currentbloc->lien != NULL)    //On ajoute le nouveau bloc à la fin de la BC
+                currentbloc = currentbloc->lien;
+            currentbloc->lien = nouv_bloc;
+            Genesis.taille++;
+        }
     }
     else                                        //Bloc Invalide
     {

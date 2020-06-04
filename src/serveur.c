@@ -34,7 +34,6 @@ int main(int argc, char *argv[]) {
   struct sockaddr_in adrEcoute, adrClient;
   unsigned int lgAdrClient;
   int numWorkerLibre;
-  printf("yo\n");
   initGenesis();
   
   initTabID(&TabID);
@@ -176,7 +175,6 @@ void sessionClient(int canal) {
   while (!fin) 
   {
     lgLue = lireLigne(canal, ligne, '\n');
-    printf("ligne lue : %s\n", ligne);
     if (lgLue == -1)
       erreur_IO("lecture canal");
     else if (lgLue == 0) // arret du client (CTRL-D, interruption)
@@ -186,31 +184,35 @@ void sessionClient(int canal) {
     }
     else // lgLue > 0
     {
-      if (strcmp(ligne, "fin") == 0) 
+      if (strcmp(ligne, ASK_FIN) == 0)
       {
         fin = VRAI;
         printf("%s: fin session client\n", CMD);
       }
-      else if (strcmp(ligne, "Demande envoie TabID") == 0)  //Client demande qu'on lui envoie TabID
+      else if (strcmp(ligne, ASK_SEND_TABID) == 0)  //Client demande qu'on lui envoie TabID
       {
+        printf("%s : requête : %s\n", CMD, ligne);
         getTabID(fdID);
         sendTabID(canal);
       }
-      else if (strcmp(ligne, "Demande envoie BC") == 0)  //Client demande qu'onn lui envoie la BlockChain
+      else if (strcmp(ligne, ASK_SEND_BC) == 0)  //Client demande qu'onn lui envoie la BlockChain
       {
+        printf("%s : requête : %s\n", CMD, ligne);
         getBlockChain(fdBC);
         sendBlockchain(canal);
       }
-      else if (strcmp(ligne, "Demande reception TabID") == 0)
+      else if (strcmp(ligne, ASK_RECEIVE_TABID) == 0)
       {
+        printf("%s : requête : %s\n", CMD, ligne);
         getTabID(canal);          //On récupère TabID
         remiseAZeroFdID();        //On sauvegarde la TabID dans fdID donc on le réinitialise avant
         ecrireDansFdID();
       }
-      else if (strcmp(ligne, "Demande recption BC") == 0)
+      else if (strcmp(ligne, ASK_RECEIVE_BC) == 0)
       {
+        printf("%s : requête : %s\n", CMD, ligne);
         getBlockChain(canal);     //On récupère BlockChain
-        remiseAZeroFdBC();    //On sauvegarde la BlockChain dans fdBC donc on le réinitialise avant
+        remiseAZeroFdBC();        //On sauvegarde la BlockChain dans fdBC donc on le réinitialise avant
         ecrireDansFdBC();
       }
     }
@@ -234,7 +236,7 @@ void ecrireDansFdBC(void)
 void ecrireDansFdID(void)
 {
   char buffer[LIGNE_MAX];
-  strcpy(buffer, "fin ID");
+  strcpy(buffer, "fin TabID");
   char end = END;
   lockMutexFd(&mutexFdID);
   sendTabID(fdID);
@@ -249,7 +251,7 @@ void remiseAZeroFdBC(void)
   if (close(fdBC) < 0)
     erreur_IO("fermeture fichier pour remise a zero");
 
-  fdBC = open("SaveBC.log", O_TRUNC|O_WRONLY|O_APPEND);
+  fdBC = open(SaveBC, O_TRUNC|O_WRONLY|O_APPEND);
   if (fdBC < 0)
     erreur_IO("reouverture SaveBC");
 
@@ -263,7 +265,7 @@ void remiseAZeroFdID(void)
   if (close(fdID) < 0)
     erreur_IO("fermeture fichier pour remise a zero");
 
-  fdID = open("SaveID.log", O_TRUNC|O_WRONLY|O_APPEND);
+  fdID = open(SaveID, O_TRUNC|O_WRONLY|O_APPEND);
   if (fdID < 0)
     erreur_IO("reouverture SaveID");
 

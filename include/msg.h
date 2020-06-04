@@ -17,6 +17,7 @@ typedef struct message_t {
   struct message_t * next;	/* message suivant */
 } Message;
 
+
 /* cree un nouveau message (malloc) et retourne son adresse,
  * ou NULL en cas d'erreur. Le type est initialise avec la
  * valeur du parametre ; de plus, le champ contenu est alloue

@@ -48,7 +48,6 @@ void insertElementToTabID(TABID* TabID, struct Identifiant* Element)
     strcpy(TabID->ID[taille].username, Element->username);
     strcpy(TabID->ID[taille].password, Element->password);
     TabID->taille++;
-    SaveTabID(TabID, FileNameID);
 }
 
 char *CryptPassword(struct Identifiant* Element, char output[HASH_HEX_SIZE])

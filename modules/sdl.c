@@ -17,19 +17,19 @@ void init_global(Data* Bottle)
     Bottle->Main_Window = SDL_CreateWindow("Bottle", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1374, 775, 0);
     Bottle->Main_Renderer = SDL_CreateRenderer(Bottle->Main_Window, -1, SDL_RENDERER_ACCELERATED);
 
-    strcpy(Bottle->image,"images/menu.jpg");
+    strcpy(Bottle->image,"../images/menu.jpg");
     Bottle->menu_Texture = init_texture(Bottle, Bottle->menu_Texture);
     
-    strcpy(Bottle->image,"images/compte.jpg");
+    strcpy(Bottle->image,"../images/compte.jpg");
     Bottle->compte_Texture = init_texture(Bottle, Bottle->compte_Texture);
 
-    strcpy(Bottle->image,"images/connexion.jpg");
+    strcpy(Bottle->image,"../images/connexion.jpg");
     Bottle->connexion_Texture = init_texture(Bottle, Bottle->connexion_Texture);
 
-    strcpy(Bottle->image,"images/messagerie.jpg");
+    strcpy(Bottle->image,"../images/messagerie.jpg");
     Bottle->messagerie_Texture = init_texture(Bottle, Bottle->messagerie_Texture);
 
-    strcpy(Bottle->image,"images/destinataire.jpg");
+    strcpy(Bottle->image,"../images/destinataire.jpg");
 
     Bottle->destinataire_Texture = init_texture(Bottle, Bottle->destinataire_Texture);
     
@@ -50,7 +50,7 @@ SDL_Texture* init_texture(Data* Bottle, SDL_Texture* texture)
 
 void Write(Data* Bottle, _Message* mes)
 {
-    TTF_Font *police = TTF_OpenFont("./lsans.ttf",mes->tailleP);
+    TTF_Font *police = TTF_OpenFont("../lsans.ttf",mes->tailleP);
     if(police == NULL)
     {
         printf("%s\n", TTF_GetError());
@@ -205,9 +205,7 @@ void* MenuThread(void* arg)
 
 void* CompteConnecterThread(void* arg)
 {
-    int canal = *(int*)arg;     //Le canal de communiquation avec server
-    char requete[LIGNE_MAX];    //Requête à envoyé au serveur
-    char end = '\n';            //Fin de la requête
+    int canal = *(int*)arg;     //Le canal de communication avec server
     SDL_Rect BarreUsername;
     BarreUsername.x = 765; BarreUsername.y = 305; BarreUsername.h = 50; BarreUsername.w = 535;
     SDL_Rect BarrePassword;
@@ -251,8 +249,9 @@ void* CompteConnecterThread(void* arg)
                 }
                 else if (Etat == ETAT_COMPTE && !checkExistenceElementInTabID(&TabID, &Id))  //Cas où on est dans Créer un compte, on vérifie que les Ids rentrés n'existent pas déjà et on crée le compte et on revient au menu
                 {
-                    SignUp(&TabID, &Id);                //On ajoute le compte dans TabId et on le sauvegarde
-                    SaveTabID(&TabID, FileNameID);
+                    SignUp(&TabID, &Id);                    //On ajoute le compte dans TabId
+                    ask(canal, ASK_RECEIVE_TABID);          //On envoie la requête de reception de TabID
+                    sendTabID(canal);                       //On envoie TabID
                     Etat = ETAT_MENU;
                 }
                 ResetMes(&mesUsername, &BarreUsername); //On reset la barre de saisie Username et Password
@@ -265,7 +264,7 @@ void* CompteConnecterThread(void* arg)
 
 void* DestinataireThread(void* arg)
 {
-    int canal = *(int*)arg;     //Le canal de communiquation avec server
+    int canal = *(int*)arg;     //Le canal de communication avec server
     char User[MAX_WORD_LENGHT];
     SDL_Rect Barre;
     Barre.x = 83; Barre.y = 220; Barre.h = 60; Barre.w = 1310;  //Ce ne sont pas les bonnes valeurs il faut les changer
@@ -279,6 +278,7 @@ void* DestinataireThread(void* arg)
     while(1)
     {
         while(Etat != ETAT_DESTINATAIRE);   //On fait 2 boucles while pour éviter de réactualiser la page constamment dans le 2ème while
+        refreshTabID(canal);
         DisplayBackground(Bottle.destinataire_Texture); //Affichage du fond et des utlisateurs
         DisplayUsers(&TabID, &Bottle);
         while(Etat == ETAT_DESTINATAIRE)
@@ -309,7 +309,7 @@ void* DestinataireThread(void* arg)
 
 void* MessagerieThread(void* arg)
 {
-    int canal = *(int*)arg;     //Le canal de communiquation avec server
+    int canal = *(int*)arg;     //Le canal de communication avec server
     SDL_Rect Barre;
     Barre.x = 30; Barre.y = 670; Barre.h = 60; Barre.w = 1310;  //Barre de Saisie
     SDL_Rect Retour;
@@ -357,9 +357,8 @@ void* MessagerieThread(void* arg)
                 refreshBC(canal);                                           //Mise à jour de la BlockChain
                 getTime(DataBloc.date);                                     //On met à jour l'heure d'envoie du message
                 ajout_block(&DataBloc);                                     //On ajoute le message à la blockchain
-                //strcpy(requete, "Demande envoie BC");                       //Envoie de la block chain mise à jour
-                //ecrireLigne(canal,requete, end);
-                sendBlockchain(canal);
+                ask(canal, ASK_RECEIVE_BC);                         //On envoie la requête de recption de BC
+                sendBlockchain(canal);                                      //On envoie a BC
                 strcpy(DataBloc.message, "");                               //On reset les données de la barre de saisie et les inputs
                 ResetInput();
                 ResetMes(&mes, &Barre);

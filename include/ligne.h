@@ -25,6 +25,12 @@
 */
 #define SEPARATEUR '~'
 
+#define ASK_SEND_TABID "Demande enoie TabID"
+#define ASK_SEND_BC "Demande enoie BC"
+#define ASK_RECEIVE_TABID "Demande receive TabID"
+#define ASK_RECEIVE_BC "Demande receive BC"
+#define ASK_FIN "fin"
+
 /*
   lit une ligne de texte depuis le fichier de descripteur fd : lit des
   caracteres jusqu'a rencontrer le caractere end et les stocke dans le buffer
@@ -85,6 +91,10 @@ void getTabID(int fdsocket);
 void refreshBC(int fd);
 
 void refreshTabID(int fd);
+
+
+/* Envoie message dans le canal*/
+void ask(int canal, char* message);
 
 #endif
 
