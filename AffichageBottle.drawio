@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2020-06-04T16:09:12.070Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36" etag="NOJ0dZYYaebr8dxHJaxx" version="13.1.14" type="github" pages="6">
+<mxfile host="app.diagrams.net" modified="2020-06-04T17:29:52.560Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36" etag="BAhe6bGlnCPnuP3vMC-3" version="13.1.14" type="github" pages="6">
   <diagram id="C5RBs43oDa-KdzZeNtuy" name="Main Thread">
     <mxGraphModel dx="719" dy="616" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -1154,7 +1154,7 @@
     
   </diagram>
   <diagram id="LfEioMUgDGMMTLF0-mGo" name="Variable et Structures">
-    <mxGraphModel dx="719" dy="616" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1248" dy="624" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="5elzcA75IxGQ5SC5_u37-0" />
         <mxCell id="5elzcA75IxGQ5SC5_u37-1" parent="5elzcA75IxGQ5SC5_u37-0" />
@@ -1333,6 +1333,15 @@
         </mxCell>
         <mxCell id="6ih0dsCT_5Z0LNpcsazm-26" value="Username~Password~" style="rounded=0;whiteSpace=wrap;html=1;" parent="6ih0dsCT_5Z0LNpcsazm-12" vertex="1">
           <mxGeometry x="-13.379999999999995" y="142.5" width="162.15" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="3Bb059FBn8jIRMMRO0e5-4" value="" style="group" vertex="1" connectable="0" parent="5elzcA75IxGQ5SC5_u37-1">
+          <mxGeometry x="680" y="910" width="200" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="3Bb059FBn8jIRMMRO0e5-3" value="Demande reception BC&lt;br&gt;Demande reception TabID&lt;br&gt;Demande envoie BC&lt;br&gt;Demande envoie TabID" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="3Bb059FBn8jIRMMRO0e5-4">
+          <mxGeometry y="30" width="171.42857142857142" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="3Bb059FBn8jIRMMRO0e5-1" value="Requêtes" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="3Bb059FBn8jIRMMRO0e5-4">
+          <mxGeometry width="171.42857142857142" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
