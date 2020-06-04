@@ -37,11 +37,10 @@ int main(int argc, char *argv[])
     init_global(&Bottle);
     
     Etat = ETAT_MENU;
-
-    ask(sock, ASK_SEND_TABID);
-    getTabID(sock);
-    ask(sock, ASK_SEND_BC);
-    getBlockChain(sock);
+    
+    refreshBC(sock);
+    refreshTabID(sock);
+    
 
     
     /*-------Threads--------*/

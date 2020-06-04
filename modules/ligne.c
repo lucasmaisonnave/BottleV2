@@ -212,9 +212,10 @@ void getTabID(int fdsocket)
 {
   initTabID(&TabID); //On remet à zéro le TabID
   char IDstring[LIGNE_MAX];
-  lireLigne(fdsocket, IDstring, END);
+  lireLigne(fdsocket, IDstring, END);printf("IDstring : %s\n", IDstring);
   while(strcmp(IDstring, "fin TabID") != 0 && IDstring != NULL)
-  {
+  { 
+    
     stringToID(IDstring);
     lireLigne(fdsocket, IDstring, END);
   }
@@ -228,7 +229,7 @@ void refreshBC(int fd)
 
 void refreshTabID(int fd)
 {
-  ask(fd, ASK_SEND_TABID);                    //Mise à jour de BlockChain
+  ask(fd, ASK_SEND_TABID);
   getTabID(fd);
 }
 

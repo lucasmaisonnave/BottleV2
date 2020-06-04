@@ -2,8 +2,7 @@
 #include "pse.h"
 
 #define CMD         "serveur"
-#define SaveBC "SaveBC.log"
-#define SaveID "SaveID.log"
+
 #define NB_WORKERS  2
 
 void creerCohorteWorkers(void);
@@ -16,6 +15,8 @@ void remiseAZeroFdBC(void);
 void remiseAZeroFdID(void);
 void lockMutexFd(pthread_mutex_t* mutexFd);
 void unlockMutexFd(pthread_mutex_t* mutexFd);
+void openFd(int fd, char* Save);
+void closeFd(int fd);
 
 int fdBC, fdID;
 DataSpec dataSpec[NB_WORKERS];
@@ -42,14 +43,6 @@ int main(int argc, char *argv[]) {
     erreur("usage: %s port\n", argv[0]);
 
   port = (short)atoi(argv[1]);
-
-  fdBC = open(SaveBC, O_CREAT|O_RDWR|O_APPEND, 0644);
-  if (fdBC == -1)
-    erreur_IO("ouverture SaveBC");
-
-  fdID = open(SaveID, O_CREAT|O_RDWR|O_APPEND, 0644);
-  if (fdID == -1)
-    erreur_IO("ouverture SaveID");
 
   creerCohorteWorkers();
 
@@ -99,10 +92,6 @@ int main(int argc, char *argv[]) {
   if (close(ecoute) == -1)
     erreur_IO("fermeture ecoute");
 
-  if (close(fdBC) == -1)
-    erreur_IO("fermeture SaveBC");
-  if (close(fdID) == -1)
-    erreur_IO("fermeture SaveID");
 
   exit(EXIT_SUCCESS);
 }
@@ -191,28 +180,30 @@ void sessionClient(int canal) {
       }
       else if (strcmp(ligne, ASK_SEND_TABID) == 0)  //Client demande qu'on lui envoie TabID
       {
-        printf("%s : requête : %s\n", CMD, ligne);
+        printf("%s : (requête) %s\n", CMD, ligne);
+        openFd(fdID, SaveID); 
         getTabID(fdID);
+        close(fdID);
         sendTabID(canal);
       }
       else if (strcmp(ligne, ASK_SEND_BC) == 0)  //Client demande qu'onn lui envoie la BlockChain
       {
-        printf("%s : requête : %s\n", CMD, ligne);
+        printf("%s : (requête) %s\n", CMD, ligne);
+        openFd(fdBC, SaveBC);printf("fd : %d\n", fdBC);
         getBlockChain(fdBC);
+        closeFd(fdBC);
         sendBlockchain(canal);
       }
       else if (strcmp(ligne, ASK_RECEIVE_TABID) == 0)
       {
-        printf("%s : requête : %s\n", CMD, ligne);
+        printf("%s : (requête) %s\n", CMD, ligne);
         getTabID(canal);          //On récupère TabID
-        remiseAZeroFdID();        //On sauvegarde la TabID dans fdID donc on le réinitialise avant
         ecrireDansFdID();
       }
       else if (strcmp(ligne, ASK_RECEIVE_BC) == 0)
       {
-        printf("%s : requête : %s\n", CMD, ligne);
+        printf("%s : (requête) %s\n", CMD, ligne);
         getBlockChain(canal);     //On récupère BlockChain
-        remiseAZeroFdBC();        //On sauvegarde la BlockChain dans fdBC donc on le réinitialise avant
         ecrireDansFdBC();
       }
     }
@@ -225,35 +216,32 @@ void sessionClient(int canal) {
 
 void ecrireDansFdBC(void)
 {
-  char buffer[LIGNE_MAX];
-  strcpy(buffer, "fin BC");
-  char end = END;
   lockMutexFd(&mutexFdBC);
-  sendBlockchain(fdBC);
-  ecrireLigne(fdBC, buffer, end);
+  openFd(fdBC, SaveBC);
+  remiseAZeroFdBC();        //On sauvegarde la BlockChain dans fdBC donc on le réinitialise avant
+  getBlockChain(fdBC);
+  closeFd(fdBC);
   unlockMutexFd(&mutexFdBC);
 }
 void ecrireDansFdID(void)
 {
-  char buffer[LIGNE_MAX];
-  strcpy(buffer, "fin TabID");
-  char end = END;
   lockMutexFd(&mutexFdID);
+  openFd(fdID, SaveID);
+  remiseAZeroFdID();        //On sauvegarde la TabID dans fdID donc on le réinitialise avant
   sendTabID(fdID);
-  ecrireLigne(fdBC, buffer, end);
+  close(fdID);
   unlockMutexFd(&mutexFdID);
 }
 
 void remiseAZeroFdBC(void)
 {
   lockMutexFd(&mutexFdBC);
-
-  if (close(fdBC) < 0)
-    erreur_IO("fermeture fichier pour remise a zero");
-
+  
   fdBC = open(SaveBC, O_TRUNC|O_WRONLY|O_APPEND);
   if (fdBC < 0)
     erreur_IO("reouverture SaveBC");
+  if (close(fdBC) < 0)
+    erreur_IO("fermeture fichier pour remise a zero");
 
   unlockMutexFd(&mutexFdBC);
 }
@@ -262,12 +250,11 @@ void remiseAZeroFdID(void)
 {
   lockMutexFd(&mutexFdID);
 
-  if (close(fdID) < 0)
-    erreur_IO("fermeture fichier pour remise a zero");
-
   fdID = open(SaveID, O_TRUNC|O_WRONLY|O_APPEND);
   if (fdID < 0)
     erreur_IO("reouverture SaveID");
+  if (close(fdID) < 0)
+    erreur_IO("fermeture fichier pour remise a zero");
 
   unlockMutexFd(&mutexFdID);
 }
@@ -289,3 +276,14 @@ void unlockMutexFd(pthread_mutex_t* mutexFd)
     erreur_IO("unlock mutex descipteur");
 }
 
+void openFd(int fd, char* Save)
+{
+  fd = open(Save, O_CREAT|O_RDWR|O_APPEND, 0644);
+  if (fd == -1)
+    erreur_IO("ouverture fichier\n");
+}
+void closeFd(int fd)
+{
+  if (close(fd) == -1)
+    erreur_IO("fermeture fichier");
+}

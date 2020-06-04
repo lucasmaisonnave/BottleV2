@@ -25,8 +25,11 @@
 */
 #define SEPARATEUR '~'
 
-#define ASK_SEND_TABID "Demande enoie TabID"
-#define ASK_SEND_BC "Demande enoie BC"
+#define SaveBC "SaveBC.log"
+#define SaveID "SaveID.log"
+
+#define ASK_SEND_TABID "Demande envoie TabID"
+#define ASK_SEND_BC "Demande envoie BC"
 #define ASK_RECEIVE_TABID "Demande receive TabID"
 #define ASK_RECEIVE_BC "Demande receive BC"
 #define ASK_FIN "fin"
