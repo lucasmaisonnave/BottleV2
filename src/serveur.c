@@ -8,7 +8,7 @@
 void creerCohorteWorkers(void);
 int chercherWorkerLibre(void);
 void *threadWorker(void *arg);
-void sessionClient(int canal);
+void sessionClient(DataSpec *dataSpec);
 void ecrireDansFdBC(void);
 void ecrireDansFdID(void);
 void remiseAZeroFdBC(void);
@@ -139,7 +139,7 @@ void *threadWorker(void *arg) {
 
     printf("worker %d: reveil\n", dataSpec->tid);
 
-    sessionClient(dataSpec->canal);
+    sessionClient(dataSpec);
 
     lockMutexFd(&mutexCanal[dataSpec->tid]);
     dataSpec->canal = -1;
@@ -155,11 +155,13 @@ void *threadWorker(void *arg) {
   pthread_exit(NULL);
 }
 
-void sessionClient(int canal) {
+void sessionClient(DataSpec *dataSpec) {
   int fin = FAUX;
   char ligne[LIGNE_MAX];
   int lgLue, lgEcr;
   char end;
+  int canal = dataSpec->canal;
+  int tid = dataSpec->tid;
 
   while (!fin) 
   {
@@ -180,7 +182,7 @@ void sessionClient(int canal) {
       }
       else if (strcmp(ligne, ASK_SEND_TABID) == 0)  //Client demande qu'on lui envoie TabID
       {
-        printf("%s : (requête) %s\n", CMD, ligne);
+        printf("%s : (requête client %d) %s\n", CMD, tid, ligne);
         fdID = openFd(SaveID); 
         getTabID(fdID);
         close(fdID);
@@ -188,21 +190,21 @@ void sessionClient(int canal) {
       }
       else if (strcmp(ligne, ASK_SEND_BC) == 0)  //Client demande qu'onn lui envoie la BlockChain
       {
-        printf("%s : (requête) %s\n", CMD, ligne);
+        printf("%s : (requête client %d) %s\n", CMD, tid, ligne);
         fdBC = openFd(SaveBC);
         getBlockChain(fdBC);
         closeFd(fdBC);
         sendBlockChain(canal);
       }
-      else if (strcmp(ligne, ASK_RECEIVE_TABID) == 0)
+      else if (strcmp(ligne, ASK_RECEIVE_TABID) == 0) //Client demande une reception de TabID
       {
-        printf("%s : (requête) %s\n", CMD, ligne);
+        printf("%s : (requête client %d) %s\n", CMD, tid, ligne);
         getTabID(canal);          //On récupère TabID
         ecrireDansFdID();
       }
-      else if (strcmp(ligne, ASK_RECEIVE_BC) == 0)
+      else if (strcmp(ligne, ASK_RECEIVE_BC) == 0)  //Client demande une reception de la BlockChain
       {
-        printf("%s : (requête) %s\n", CMD, ligne);
+        printf("%s : (requête client %d) %s\n", CMD, tid, ligne);
         getBlockChain(canal);     //On récupère BlockChain
         ecrireDansFdBC();
       }
@@ -222,7 +224,7 @@ void ecrireDansFdBC(void)
   sendBlockChain(fdBC);
   closeFd(fdBC);
   unlockMutexFd(&mutexFdBC);
-  printf("%s : fichier %s mis à jour", CMD, SaveBC);
+  printf("%s : fichier %s mis à jour\n", CMD, SaveBC);
 }
 void ecrireDansFdID(void)
 {
@@ -232,7 +234,7 @@ void ecrireDansFdID(void)
   sendTabID(fdID);
   close(fdID);
   unlockMutexFd(&mutexFdID);
-  printf("%s : fichier %s mis à jour", CMD, SaveID);
+  printf("%s : fichier %s mis à jour\n", CMD, SaveID);
 }
 
 void remiseAZeroFdBC(void)

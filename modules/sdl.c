@@ -392,8 +392,15 @@ void BarreSaisie(_Message* mes, char texte[MAX_WORD_LENGHT], SDL_Rect* Barre)
             Write(&Bottle, mes);
             Input.BouttonClavier = SDLK_UNKNOWN;
         }
+        else if(Input.BouttonClavier == SDLK_SPACE && strlen(texte) < MAX_WORD_LENGHT) //Cas où on appuie sur espace
+        {
+            strcat(texte," ");
+            strcpy(mes->texte, " ");
+            mes->textRect.x += 25;
+            Write(&Bottle, mes);
+            Input.BouttonClavier = SDLK_UNKNOWN;
+        }
     }
-    //Faire le cas où on appui sur espace
 }
 
 void DisplayBackground(SDL_Texture* Texture)    //Affiche Texture en fond
