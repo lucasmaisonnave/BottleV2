@@ -79,13 +79,13 @@ bool checkExistenceElementInTabID(TABID* TabID, struct Identifiant* Element)
     return false;
 }
 
-void printTabID(TABID* TabID)
+void printTabID(void)
 {
-    int taille = TabID->taille;
+    int taille = TabID.taille;
     printf("TabID : \n");
     for(int i = 0; i<taille; i++)
     {
-        printf("Username : %s , Password : %s\n", TabID->ID[i].username, TabID->ID[i].password);
+        printf("Username : %s , Password : %s\n", TabID.ID[i].username, TabID.ID[i].password);
     }
 }
 

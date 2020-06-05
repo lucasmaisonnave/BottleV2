@@ -20,7 +20,7 @@
         char message[MaxMessage];
         char exp[MAX_WORD_LENGHT];
         char dest[MAX_WORD_LENGHT];
-        char date[50];
+        char date[MaxMessage];
     }donnee;
 
     struct bloc{

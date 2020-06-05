@@ -220,15 +220,18 @@ void ajout_block(donnee* message)       //Pour l'ajout d'un nouveau block
 
     strcpy(nouv_bloc->donnee->message, message->message);
     
-    if(currentbloc != NULL)
-    {
-        nouv_bloc->index = currentbloc->index + 1;
-        strcpy(nouv_bloc->precHash, currentbloc->Hash);
+    if(currentbloc == NULL)
+    {   
+        nouv_bloc->index = 1;
+        strcpy(nouv_bloc->precHash, "0");
+        
     }
     else
     {
-        nouv_bloc->index = 1;
-        strcpy(nouv_bloc->precHash, "0");
+        while(currentbloc->lien != NULL)    //On ajoute le nouveau bloc à la fin de la BC
+            currentbloc = currentbloc->lien;
+        nouv_bloc->index = currentbloc->index + 1;
+        strcpy(nouv_bloc->precHash, currentbloc->Hash);
     }
     calculHash(nouv_bloc);
     if(IsValidBlock(nouv_bloc,currentbloc))     //Test de validité du block
@@ -239,8 +242,7 @@ void ajout_block(donnee* message)       //Pour l'ajout d'un nouveau block
         }
         else
         {
-            while(currentbloc->lien != NULL)    //On ajoute le nouveau bloc à la fin de la BC
-                currentbloc = currentbloc->lien;
+            nouv_bloc->lien = NULL;
             currentbloc->lien = nouv_bloc;
             Genesis.taille++;
         }

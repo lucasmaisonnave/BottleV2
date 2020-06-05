@@ -7,6 +7,7 @@
 #include "sdl.h"
 #include "ligne.h"
 #include "blockchain.h"
+#include "msgbox.h"
 #include <SDL2/SDL_ttf.h>   //apt-get install libsdl2-ttf-dev
 #include <SDL2/SDL_image.h> //apt-get install libsdl2-image-dev
 
@@ -115,9 +116,11 @@ void DisplayUsers(TABID* TabID, Data* Bottle)  //Retourne le choix
 void DisplayMessagerie(char* exp, char* dest, Data* Bottle)
 {
     _Message* mes = (_Message*)malloc(sizeof(_Message));
-    
+    Bal _bal;                   //File des messages
+    initBal(&_bal);
+
     mes->textRect.y = 165;
-    mes->textRect.h = 40;    //Choisir la largeur du message
+    mes->textRect.h = 40;       //Choisir la largeur du message
     mes->tailleP = 40;
     mes->couleur.b = 0;
     mes->couleur.a = 0;
@@ -136,31 +139,39 @@ void DisplayMessagerie(char* exp, char* dest, Data* Bottle)
 
     mes->textRect.x = 60;
     struct bloc *currentbloc = Genesis.premier;
-    int cmpt = 0;               //compteur du nombre de messages affiché et ne doit pas dépasser NbMessages
-    mes->textRect.y = 590;
+    mes->textRect.y = 245;
     mes->textRect.h = 25;       //Choisir la largeur du message
     mes->tailleP = 20;
-    while(cmpt <= NbMessages && currentbloc != NULL)
+    while(currentbloc != NULL)
     {   
         if((strcmp(currentbloc->donnee->exp, exp) == 0 && strcmp(currentbloc->donnee->dest, dest) == 0) || (strcmp(currentbloc->donnee->dest, exp) == 0 && strcmp(currentbloc->donnee->exp, dest) == 0))    //On test qu'on a bien les bon exp et dest
         {
-            cmpt++;
-            strcpy(mes->texte, "[");
-            strcat(mes->texte, currentbloc->donnee->date);
-            strcat(mes->texte, "]");
-            strcat(mes->texte, " ");
-            strcat(mes->texte, currentbloc->donnee->exp);
-            strcat(mes->texte, " : ");
-            strcat(mes->texte, currentbloc->donnee->message);
-            mes->textRect.w = 12*strlen(mes->texte);
-            mes->textRect.y -= mes->textRect.h ; 
-            Write(Bottle, mes);
+            Message *_msg = newMessage(10, 2*MaxMessage + 2*MAX_WORD_LENGHT + 6);
+            strcpy(_msg->contenu, "[");
+            strcat(_msg->contenu, currentbloc->donnee->date);
+            strcat(_msg->contenu, "]");
+            strcat(_msg->contenu, " ");
+            strcat(_msg->contenu, currentbloc->donnee->exp);
+            strcat(_msg->contenu, " : ");
+            strcat(_msg->contenu, currentbloc->donnee->message);
+            ajoutMessageBal(_msg, &_bal);
+            if(_bal.nombre > NbMessages)
+                retirerMessageBal(&_bal);
         }
         currentbloc = currentbloc->lien;          
     }
-    free(mes);
-
     
+    mes->textRect.y += mes->textRect.h*(NbMessages - _bal.nombre); 
+    Message *_msgDisplay = (Message *) malloc ( sizeof ( Message ) );;
+    while(_bal.nombre > 0)
+    {
+        _msgDisplay = retirerMessageBal(&_bal);
+        strcpy(mes->texte, _msgDisplay->contenu);
+        mes->textRect.w = 12*strlen(mes->texte);
+        mes->textRect.y += mes->textRect.h ; 
+        Write(Bottle, mes);
+    }
+    free(mes);
 }
 
 bool IsValidUsername(char* username, TABID* TabID)
@@ -357,8 +368,8 @@ void* MessagerieThread(void* arg)
                 refreshBC(canal);                                           //Mise à jour de la BlockChain
                 getTime(DataBloc.date);                                     //On met à jour l'heure d'envoie du message
                 ajout_block(&DataBloc);                                     //On ajoute le message à la blockchain
-                ask(canal, ASK_RECEIVE_BC);                         //On envoie la requête de recption de BC
-                sendBlockchain(canal);                                      //On envoie a BC
+                ask(canal, ASK_RECEIVE_BC);                                 //On envoie la requête de recption de BC
+                sendBlockChain(canal);                                      //On envoie a BC
                 strcpy(DataBloc.message, "");                               //On reset les données de la barre de saisie et les inputs
                 ResetInput();
                 ResetMes(&mes, &Barre);

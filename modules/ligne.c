@@ -95,7 +95,7 @@ int ecrireLigne(int fd, char *buffer, char end) {
   return nbecr;
 }
 
-void sendBlockchain(int fdsocket)
+void sendBlockChain(int fdsocket)
 {
   char ligne[LIGNE_MAX];
   struct bloc* current = Genesis.premier;
@@ -212,7 +212,7 @@ void getTabID(int fdsocket)
 {
   initTabID(&TabID); //On remet à zéro le TabID
   char IDstring[LIGNE_MAX];
-  lireLigne(fdsocket, IDstring, END);printf("IDstring : %s\n", IDstring);
+  lireLigne(fdsocket, IDstring, END);
   while(strcmp(IDstring, "fin TabID") != 0 && IDstring != NULL)
   { 
     

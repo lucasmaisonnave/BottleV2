@@ -15,7 +15,7 @@ void remiseAZeroFdBC(void);
 void remiseAZeroFdID(void);
 void lockMutexFd(pthread_mutex_t* mutexFd);
 void unlockMutexFd(pthread_mutex_t* mutexFd);
-void openFd(int fd, char* Save);
+int openFd(char* Save);
 void closeFd(int fd);
 
 int fdBC, fdID;
@@ -181,7 +181,7 @@ void sessionClient(int canal) {
       else if (strcmp(ligne, ASK_SEND_TABID) == 0)  //Client demande qu'on lui envoie TabID
       {
         printf("%s : (requête) %s\n", CMD, ligne);
-        openFd(fdID, SaveID); 
+        fdID = openFd(SaveID); 
         getTabID(fdID);
         close(fdID);
         sendTabID(canal);
@@ -189,10 +189,10 @@ void sessionClient(int canal) {
       else if (strcmp(ligne, ASK_SEND_BC) == 0)  //Client demande qu'onn lui envoie la BlockChain
       {
         printf("%s : (requête) %s\n", CMD, ligne);
-        openFd(fdBC, SaveBC);printf("fd : %d\n", fdBC);
+        fdBC = openFd(SaveBC);
         getBlockChain(fdBC);
         closeFd(fdBC);
-        sendBlockchain(canal);
+        sendBlockChain(canal);
       }
       else if (strcmp(ligne, ASK_RECEIVE_TABID) == 0)
       {
@@ -216,21 +216,23 @@ void sessionClient(int canal) {
 
 void ecrireDansFdBC(void)
 {
-  lockMutexFd(&mutexFdBC);
-  openFd(fdBC, SaveBC);
   remiseAZeroFdBC();        //On sauvegarde la BlockChain dans fdBC donc on le réinitialise avant
-  getBlockChain(fdBC);
+  lockMutexFd(&mutexFdBC);
+  fdBC = openFd(SaveBC);
+  sendBlockChain(fdBC);
   closeFd(fdBC);
   unlockMutexFd(&mutexFdBC);
+  printf("%s : fichier %s mis à jour", CMD, SaveBC);
 }
 void ecrireDansFdID(void)
 {
-  lockMutexFd(&mutexFdID);
-  openFd(fdID, SaveID);
   remiseAZeroFdID();        //On sauvegarde la TabID dans fdID donc on le réinitialise avant
+  lockMutexFd(&mutexFdID);
+  fdID = openFd(SaveID);
   sendTabID(fdID);
   close(fdID);
   unlockMutexFd(&mutexFdID);
+  printf("%s : fichier %s mis à jour", CMD, SaveID);
 }
 
 void remiseAZeroFdBC(void)
@@ -276,11 +278,13 @@ void unlockMutexFd(pthread_mutex_t* mutexFd)
     erreur_IO("unlock mutex descipteur");
 }
 
-void openFd(int fd, char* Save)
+int openFd(char* Save)
 {
-  fd = open(Save, O_CREAT|O_RDWR|O_APPEND, 0644);
+  int fd;
+  fd = open(Save, O_RDWR|O_APPEND, 0644);
   if (fd == -1)
     erreur_IO("ouverture fichier\n");
+  return fd;
 }
 void closeFd(int fd)
 {

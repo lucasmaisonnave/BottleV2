@@ -30,8 +30,8 @@
 
 #define ASK_SEND_TABID "Demande envoie TabID"
 #define ASK_SEND_BC "Demande envoie BC"
-#define ASK_RECEIVE_TABID "Demande receive TabID"
-#define ASK_RECEIVE_BC "Demande receive BC"
+#define ASK_RECEIVE_TABID "Demande reception TabID"
+#define ASK_RECEIVE_BC "Demande reception BC"
 #define ASK_FIN "fin"
 
 /*
@@ -61,7 +61,7 @@ int ecrireLigne (int fd, char *buffer, char end) ;
   Envoie la blockchain dans le canal fdsocket
   retourne -1 s'il y a une erreur
 */
-void sendBlockchain(int fdsocket);
+void sendBlockChain(int fdsocket);
 
 /*
   met à jour la blockchain lisant le contenu de fdsocket
