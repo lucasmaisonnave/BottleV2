@@ -234,6 +234,7 @@ void ajout_block(donnee* message)       //Pour l'ajout d'un nouveau block
         strcpy(nouv_bloc->precHash, currentbloc->Hash);
     }
     calculHash(nouv_bloc);
+    nouv_bloc->lien = NULL;
     if(IsValidBlock(nouv_bloc,currentbloc))     //Test de validité du block
     {
         if(currentbloc == NULL)
@@ -242,7 +243,6 @@ void ajout_block(donnee* message)       //Pour l'ajout d'un nouveau block
         }
         else
         {
-            nouv_bloc->lien = NULL;
             currentbloc->lien = nouv_bloc;
             Genesis.taille++;
         }

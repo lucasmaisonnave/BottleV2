@@ -7,7 +7,7 @@
 
     #define N 200               //Taille max de la blockchain
     #define MaxMessage 50      //Taille max des messages
-    #define MAX_WORD_LENGHT	20	// Maximum word length à réajuster pour les mots de passe et identifiants
+    #define MAX_WORD_LENGHT	50	// Maximum word length à réajuster pour les mots de passe et identifiants
     #define DIFFICULTY 4        //Difficulté de la proof of work
     #define FileNameBC "SaveBC.txt"
 

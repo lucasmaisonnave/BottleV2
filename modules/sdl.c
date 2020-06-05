@@ -56,7 +56,7 @@ void Write(Data* Bottle, _Message* mes)
     {
         printf("%s\n", TTF_GetError());
     }
-
+    printf("texte : %s\n", mes->texte);
     mes->texteSurface = TTF_RenderText_Blended(police, mes->texte,mes->couleur);
     if(mes->texteSurface == NULL)
     {
@@ -68,8 +68,8 @@ void Write(Data* Bottle, _Message* mes)
     {
         printf("%s", SDL_GetError());
     }
-    SDL_QueryTexture(Bottle->message, NULL, NULL, &mes->textRect.w, &mes->textRect.h);
-    SDL_FreeSurface(mes->texteSurface);
+    /*SDL_QueryTexture(Bottle->message, NULL, NULL, &mes->textRect.w, &mes->textRect.h);
+    SDL_FreeSurface(mes->texteSurface);*/
 
     SDL_RenderCopy(Bottle->Main_Renderer, mes->texture, NULL, &mes->textRect);
     SDL_RenderPresent(Bottle->Main_Renderer);
@@ -139,7 +139,7 @@ void DisplayMessagerie(char* exp, char* dest, Data* Bottle)
 
     mes->textRect.x = 60;
     struct bloc *currentbloc = Genesis.premier;
-    mes->textRect.y = 245;
+    mes->textRect.y = 250;
     mes->textRect.h = 25;       //Choisir la largeur du message
     mes->tailleP = 20;
     while(currentbloc != NULL)

@@ -171,7 +171,7 @@ void sessionClient(DataSpec *dataSpec) {
     else if (lgLue == 0) // arret du client (CTRL-D, interruption)
     {  
       fin = VRAI;
-      printf("%s: arret du client\n", CMD);
+      printf("%s: arret du client %d\n", CMD, tid);
     }
     else // lgLue > 0
     {

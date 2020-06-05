@@ -35,7 +35,7 @@
         int tailleP; //taille de la police
         SDL_Surface* texteSurface;
         SDL_Color couleur;
-        char texte[MaxMessage];
+        char texte[3*MAX_WORD_LENGHT+6];
         SDL_Rect textRect;
         SDL_Texture* texture;
     }_Message;
