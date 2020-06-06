@@ -23,7 +23,7 @@ Installation
 - aller dans le dossier src
 - make all
 - make runServeur (lance le serveur sur le port 2000)
-- make runClient (lance le client en localhost sur le port 2000)
+- make runBottle (lance Bottle en localhost sur le port 2000)
 
 ### 4. Fonctionnalités :
 
