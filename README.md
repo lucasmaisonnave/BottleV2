@@ -43,3 +43,8 @@ Il n'y a pas de bouton pour supprimer un compte : il faut directement supprimer 
 - Envoyer des messages : Communiquez directement avec les autres utilisateurs via la messagerie qui affichera les derniers messages de la conversation. Vous pouvez rafraichir la page en appuyant sur la flèche en bas à gauche. Si vous voulez changer de destinataire, appuyez sur le bouton retour et reconnectez-vous
 
 ![Bottle Design](images/messagerie.jpg)
+
+Sécurité
+------------
+
+  Bottle est un projet qui a été créé pour garantir la sécurité lors de la transmission des données d'un utilisateur à un autre. Pour cela nous avons utilisé des blockchains pour garantir une sécurité maximale mais nous permettons aussi la création de comptes dont les identifiants sont stockés et cryptés. L'algorithme est aussi capable de reconnaître toute modification des fichiers de sauvegarde de la blockchain et des IDs et supprimera toutes les conversations précdentes : ne jouez pas aux hackers!
