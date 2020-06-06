@@ -1,5 +1,5 @@
 # ProjetC2_Blockchain
-![Bottle Design](./inmages/logo.png)
+![Bottle Design](../inmages/logo.png)
 **BOTTLE : Une messagerie sécurisée écrite en C. Utilise uniquement : C, SDL, OPENSSL.**
 
 Cette application est une simulation de messagerie qui fonctionne grâce aux blockchains. 
@@ -27,7 +27,7 @@ Installation
 ### 4. Fonctionnalités :
 
 - Créer un nouveau compte : Vous pouvez créer un compte en écrivant votre identifiant et votre mot de passe
-![Bottle Design](images/compte.png)
+![Bottle Design](../images/compte.png)
 Cependant, il est seulement possible de créer 5 comptes différents.
 Il n'y a pas de bouton pour supprimer un compte : il faut directement supprimer la ligne correspondante dans le fichier SaveID.txt
 
