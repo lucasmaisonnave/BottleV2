@@ -38,6 +38,8 @@ Il n'y a pas de bouton pour supprimer un compte : il faut directement supprimer 
 
 - Choisir un destinataire : Rentrez directement le nom du destinataire que vous souhaitez parmi les choix proposés
 
-![Bottle Design](images/messagerie.jpg)
+![Bottle Design](images/destinataire.jpg)
 
 - Envoyer des messages : Communiquez directement avec les autres utilisateurs via la messagerie qui affichera les derniers messages de la conversation. Vous pouvez rafraichir la page en appuyant sur la flèche en bas à gauche. Si vous voulez changer de destinataire, appuyez sur le bouton retour et reconnectez-vous
+
+![Bottle Design](images/messagerie.jpg)
