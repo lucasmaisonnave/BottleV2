@@ -14,4 +14,4 @@ clean:
 runServeur :
 	./serveur 2000
 runBottle:
-	./client 2000
+	./client localhost 2000
