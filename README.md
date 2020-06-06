@@ -47,4 +47,4 @@ Il n'y a pas de bouton pour supprimer un compte : il faut directement supprimer 
 Sécurité
 ------------
 
-  Bottle est un projet qui a été créé pour garantir la sécurité lors de la transmission des données d'un utilisateur à un autre. Pour cela nous avons utilisé des blockchains pour garantir une sécurité maximale mais nous permettons aussi la création de comptes dont les identifiants sont stockés et cryptés. L'algorithme est aussi capable de reconnaître toute modification des fichiers de sauvegarde de la blockchain et des IDs et supprimera toutes les conversations précdentes : ne jouez pas aux hackers!
+  Bottle est un projet qui a été créé pour garantir la sécurité lors de la transmission des données d'un utilisateur à un autre. Pour cela nous avons utilisé des blockchains pour garantir une sécurité maximale mais nous permettons aussi la création de comptes dont les identifiants sont stockés et cryptés. L'algorithme est aussi capable de reconnaître toute modification du fichier de sauvegarde de la blockchain et supprimera toutes les conversations précdentes : ne jouez pas aux hackers!
