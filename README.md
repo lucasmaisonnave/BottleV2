@@ -11,7 +11,7 @@ Installation
 ### 1. Télécharger le code
 
 
-### 2. Installer les librairies :
+### 2. Installer les librairies (Linux):
 
 - sudo apt-get install libsdl1.2-dev
 - sudo apt-get install libsdl2-ttf-dev
