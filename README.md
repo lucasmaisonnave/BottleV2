@@ -1,6 +1,6 @@
 # BottleV2
 ![Bottle Design](images/logo.png)
-**BOTTLE : Une messagerie sécurisée écrite en C. Utilise uniquement : C, SDL, OPENSSL, TTF.**
+**BOTTLE : Une messagerie sécurisée écrite en C. Utilise uniquement : SDL, OPENSSL, TTF.**
 
 Cette application est une simulation de messagerie qui fonctionne grâce aux blockchains. 
 Assurant ainsi la sécurité des messages transmis, l’application permet aussi la création et la gestion de comptes dont les informations confidentielles sont chiffrées.
