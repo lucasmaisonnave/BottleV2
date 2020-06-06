@@ -188,12 +188,18 @@ void sessionClient(DataSpec *dataSpec) {
         close(fdID);
         sendTabID(canal);
       }
-      else if (strcmp(ligne, ASK_SEND_BC) == 0)  //Client demande qu'onn lui envoie la BlockChain
+      else if (strcmp(ligne, ASK_SEND_BC) == 0)  //Client demande qu'on lui envoie la BlockChain
       {
         printf("%s : (requête client %d) %s\n", CMD, tid, ligne);
         fdBC = openFd(SaveBC);
-        getBlockChain(fdBC);
-        closeFd(fdBC);
+        if(getBlockChain(fdBC) == -1)
+        {
+          printf("%s : Erreur BlockChain corrompu\n", CMD);
+          initGenesis();
+          ecrireDansFdBC();          
+        }
+        else
+          closeFd(fdBC);
         sendBlockChain(canal);
       }
       else if (strcmp(ligne, ASK_RECEIVE_TABID) == 0) //Client demande une reception de TabID

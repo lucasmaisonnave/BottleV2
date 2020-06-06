@@ -7,7 +7,7 @@
     #include <SDL2/SDL_image.h> 
     
 
-    #define NbMessages 12      //Nb de messages à afficher
+    #define NbMessages 13      //Nb de messages à afficher
     
     enum ETAT {ETAT_QUIT, ETAT_MENU, ETAT_CONNECTION, ETAT_COMPTE, ETAT_DESTINATAIRE, ETAT_MESSAGERIE};
 

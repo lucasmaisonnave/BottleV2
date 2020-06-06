@@ -56,7 +56,6 @@ void Write(Data* Bottle, _Message* mes)
     {
         printf("%s\n", TTF_GetError());
     }
-    printf("texte : %s\n", mes->texte);
     mes->texteSurface = TTF_RenderText_Blended(police, mes->texte,mes->couleur);
     if(mes->texteSurface == NULL)
     {
@@ -139,7 +138,7 @@ void DisplayMessagerie(char* exp, char* dest, Data* Bottle)
 
     mes->textRect.x = 60;
     struct bloc *currentbloc = Genesis.premier;
-    mes->textRect.y = 250;
+    mes->textRect.y = 240;
     mes->textRect.h = 25;       //Choisir la largeur du message
     mes->tailleP = 20;
     while(currentbloc != NULL)
@@ -322,7 +321,7 @@ void* MessagerieThread(void* arg)
 {
     int canal = *(int*)arg;     //Le canal de communication avec server
     SDL_Rect Barre;
-    Barre.x = 30; Barre.y = 670; Barre.h = 60; Barre.w = 1310;  //Barre de Saisie
+    Barre.x = 35; Barre.y = 660; Barre.h = 60; Barre.w = 1310;  //Barre de Saisie
     SDL_Rect Retour;
     Retour.x = 1240; Retour.y = 730; Retour.h = 30; Retour.w = 100; //Bouton retour
     SDL_Rect Refresh;
@@ -371,7 +370,7 @@ void* MessagerieThread(void* arg)
                 ask(canal, ASK_RECEIVE_BC);                                 //On envoie la requête de recption de BC
                 sendBlockChain(canal);                                      //On envoie a BC
                 strcpy(DataBloc.message, "");                               //On reset les données de la barre de saisie et les inputs
-                ResetInput();
+                Input.BouttonClavier = SDLK_UNKNOWN;                        //On reset pas les coordonnées du point pour rester dans la barre de saisie meme si on a appuyé sur enter
                 ResetMes(&mes, &Barre);
                 DisplayBackground(Bottle.messagerie_Texture);               //Affichage du fond
                 DisplayMessagerie(DataBloc.exp, DataBloc.dest, &Bottle);    //Affichage des messages et de exp et dest
@@ -384,7 +383,7 @@ void BarreSaisie(_Message* mes, char texte[MAX_WORD_LENGHT], SDL_Rect* Barre)
 {
     while(Input.BouttonClavier != SDLK_RETURN && SDL_PointInRect(&Input.PointPressed, Barre))
     {
-        if(Input.BouttonClavier != SDLK_UNKNOWN && strlen(texte) < MAX_WORD_LENGHT && strlen(SDL_GetKeyName(Input.BouttonClavier)) <= 1)
+        if(Input.BouttonClavier != SDLK_UNKNOWN && strlen(texte) < MAX_WORD_LENGHT-1 && strlen(SDL_GetKeyName(Input.BouttonClavier)) <= 1)
         {
             strcat(texte,SDL_GetKeyName(Input.BouttonClavier));
             strcpy(mes->texte, SDL_GetKeyName(Input.BouttonClavier));
@@ -392,7 +391,7 @@ void BarreSaisie(_Message* mes, char texte[MAX_WORD_LENGHT], SDL_Rect* Barre)
             Write(&Bottle, mes);
             Input.BouttonClavier = SDLK_UNKNOWN;
         }
-        else if(Input.BouttonClavier == SDLK_SPACE && strlen(texte) < MAX_WORD_LENGHT) //Cas où on appuie sur espace
+        else if(Input.BouttonClavier == SDLK_SPACE && strlen(texte) < MAX_WORD_LENGHT-1) //Cas où on appuie sur espace
         {
             strcat(texte," ");
             strcpy(mes->texte, " ");

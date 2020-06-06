@@ -115,7 +115,7 @@ void sendBlockChain(int fdsocket)
   ecrireLigne(fdsocket, ligne, end);
 }
 
-void getBlockChain(int fdsocket)
+int getBlockChain(int fdsocket)
 {
   initGenesis();    //On remet à zéro la BC
   char blocString[BLOCK_STR_SIZE];
@@ -123,13 +123,15 @@ void getBlockChain(int fdsocket)
   lireLigne(fdsocket, blocString, end);
   while(strcmp(blocString, "fin BC") != 0)
   {
-    stringToBlock(blocString);
+    if(stringToBlock(blocString) == -1)
+      return -1;
     lireLigne(fdsocket, blocString, end);
   }
+  return 1;
 }
 
 
-void stringToBlock(char blocString[BLOCK_STR_SIZE]) 
+int stringToBlock(char blocString[BLOCK_STR_SIZE]) 
 {
   char tabfeature[8][LIGNE_MAX];  //Tab de char qui va contenir les donées du bloc
   int decalage = 0;
@@ -156,18 +158,21 @@ void stringToBlock(char blocString[BLOCK_STR_SIZE])
   
   nouveau->lien = NULL;
   current = Genesis.premier;
-  if(current == NULL)
+  if(current != NULL)
+    while(current->lien != NULL)
+          current = current->lien;
+  if(IsValidBlock(nouveau, current))
   {
-    Genesis.premier = nouveau;
+    if(current == NULL)
+      Genesis.premier = nouveau;
+    else
+      current->lien = nouveau;
+    Genesis.taille++;
   }
   else
-  {
-    while(current->lien != NULL)
-    {
-      current = current->lien;
-    }
-  current->lien = nouveau;
-  }
+    return -1;
+  
+  return 1;
 }
 
 

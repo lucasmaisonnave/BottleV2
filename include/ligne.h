@@ -65,14 +65,17 @@ void sendBlockChain(int fdsocket);
 
 /*
   met à jour la blockchain lisant le contenu de fdsocket
+  renvoie -1 si la BlockChain est corrompue et 1 s'il n'y
+  a pas eu de problèmes
 */
-void getBlockChain(int fdsocket);
+int getBlockChain(int fdsocket);
 
 /*
   Transforme blocString (string) en block qui est ensuite ajouter à la
-  blockchain
+  blockchain, renvoie -1 si la BlockChain est corrompue et 1 s'il n'y
+  a pas eu de problèmes
 */
-void stringToBlock(char blocString[BLOCK_STR_SIZE]);
+int stringToBlock(char blocString[BLOCK_STR_SIZE]);
 
 /*
   Transforme IDstring (string) en ID qui est ensuite ajouter à la

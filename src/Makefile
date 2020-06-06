@@ -11,4 +11,7 @@ ${EXE): ${PSE_LIB}
 clean:
 	rm -f *.o *~ ${EXE}
 
-
+runServeur :
+	./serveur 2000
+runBottle:
+	./client 2000

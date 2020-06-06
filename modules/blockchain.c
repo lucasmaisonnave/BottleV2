@@ -215,7 +215,6 @@ void ajout_block(donnee* message)       //Pour l'ajout d'un nouveau block
     nouv_bloc->donnee = (donnee*)malloc(sizeof(donnee));
     strcpy(nouv_bloc->donnee->date, message->date);
     strcpy(nouv_bloc->donnee->exp, message->exp);
-    //printf("nouv_bloc->exp : %s\n", nouv_bloc->donnee->exp);
     strcpy(nouv_bloc->donnee->dest, message->dest);
 
     strcpy(nouv_bloc->donnee->message, message->message);
@@ -224,7 +223,6 @@ void ajout_block(donnee* message)       //Pour l'ajout d'un nouveau block
     {   
         nouv_bloc->index = 1;
         strcpy(nouv_bloc->precHash, "0");
-        
     }
     else
     {
@@ -238,14 +236,10 @@ void ajout_block(donnee* message)       //Pour l'ajout d'un nouveau block
     if(IsValidBlock(nouv_bloc,currentbloc))     //Test de validité du block
     {
         if(currentbloc == NULL)
-        {
             Genesis.premier = nouv_bloc;
-        }
         else
-        {
             currentbloc->lien = nouv_bloc;
-            Genesis.taille++;
-        }
+        Genesis.taille++;
     }
     else                                        //Bloc Invalide
     {
@@ -264,24 +258,13 @@ bool IsValidBlock(struct bloc* newBlock, struct bloc* previousBlock)    //Test d
     if(previousBlock != NULL)
     {
         if (previousBlock->index + 1 != newBlock->index)    //Index exact?
-        {
-            printf("\nBlock invalide : indexs invalide (%d + 1 != %d).\n", previousBlock->index, newBlock->index);
             return false;
-        }
-
         else if (strcmp(previousBlock->Hash, newBlock->precHash) != 0)  //Bon hachage du précédent block?
-        {
-            printf("\nBlock invalide : hash précédent invalide.\n");
             return false;
-        }
     }   
 
     if (strcmp(hash_to_test, newBlock->Hash) != 0)     //Recalcul du hachage
-    {
-        printf("\nBlock invalide: hashs différents (%s != %s)\n", hash_to_test, newBlock->Hash);
         return false;
-    }
-
     return true;
 }
 
