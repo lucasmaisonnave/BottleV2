@@ -3,7 +3,7 @@
 
 #define CMD         "serveur"
 
-#define NB_WORKERS  2
+#define NB_WORKERS  5
 
 void creerCohorteWorkers(void);
 int chercherWorkerLibre(void);
